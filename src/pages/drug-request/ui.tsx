@@ -20,7 +20,7 @@ const TransferDrugPage = () => {
         const navigate = useNavigate();
         const { enqueueSnackbar } = useSnackbar();
         const [selectedDrugs, setSelectedDrugs] = useState<SelectedDrug[]>([]);
-        const { mutateAsync: createRequest } = useCreateDrugRequest();
+        const { mutateAsync: createRequest , isPending} = useCreateDrugRequest();
         const departmentId = "1";
 
         const handleAddDrug = (drug: any) => {
@@ -117,6 +117,7 @@ const TransferDrugPage = () => {
                                 color="warning"
                                 onClick={handleTransfer}
                                 disabled={selectedDrugs.length === 0}
+                                loading={isPending}
                         >
                                 O'z xisobimga o'tkazish
                         </Button>
