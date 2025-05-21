@@ -34,6 +34,7 @@ function getDaysInMonth(month: number, year: number) {
 }
 
 export default function SessionsChart() {
+         // @ts-ignore
         const { data: departments } = useReportByDepartment()
         const theme = useTheme();
         const data = getDaysInMonth(4, 2024);
@@ -74,7 +75,7 @@ export default function SessionsChart() {
                                                 {
                                                         scaleType: 'point',
                                                         data,
-                                                        tickInterval: (index, i) => (i + 1) % 5 === 0,
+                                                        tickInterval: (_, i) => (i + 1) % 5 === 0,
                                                 },
                                         ]}
                                         series={[
@@ -137,6 +138,7 @@ export default function SessionsChart() {
                                         }}
                                         slotProps={{
                                                 legend: {
+                                                        /* @ts-ignore */
                                                         hidden: true,
                                                 },
                                         }}

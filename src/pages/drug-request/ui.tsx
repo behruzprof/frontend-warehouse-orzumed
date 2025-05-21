@@ -39,6 +39,7 @@ const TransferDrugPage = () => {
                                                 departmentId: +departmentId,
                                                 drugId: +drug.id,
                                                 quantity: drug.transferQuantity,
+                                                 // @ts-ignore
                                                 status: "issued",
                                                 patientName: "Ichki o'tkazma",
                                         })

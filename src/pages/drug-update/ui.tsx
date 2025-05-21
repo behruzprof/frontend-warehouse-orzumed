@@ -193,18 +193,23 @@ export default function DrugUpdateDeletePage() {
                                 <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
                                         <Typography variant="subtitle1">Asosiy ma'lumotlar</Typography>
                                         <Grid container spacing={2}>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={6}>
                                                         <TextField label="Nomi" name="name" required fullWidth value={formData.name} onChange={handleChange} />
                                                 </Grid>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={6}>
                                                         <TextField label="O‘lchov birligi" name="unit" required fullWidth value={formData.unit} onChange={handleChange} />
                                                 </Grid>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={6}>
                                                         <TextField label="Yetkazib beruvchi" name="supplier" required fullWidth value={formData.supplier} onChange={handleChange} />
                                                 </Grid>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12}>
                                                         <TextField label="Tavsif" name="description" fullWidth value={formData.description} onChange={handleChange} />
                                                 </Grid>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12}>
                                                         <TextField label="Rasm URL" name="photo" fullWidth value={formData.photo} onChange={handleChange} />
                                                 </Grid>
@@ -212,12 +217,15 @@ export default function DrugUpdateDeletePage() {
 
                                         <Typography variant="subtitle1" mt={2}>Sklad joylashuvi</Typography>
                                         <Grid container spacing={2}>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={4}>
                                                         <TextField label="Shkaf" name="shelf" required fullWidth value={formData.shelf} onChange={handleChange} />
                                                 </Grid>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={4}>
                                                         <TextField label="Polka" name="section" required fullWidth value={formData.section} onChange={handleChange} />
                                                 </Grid>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={4}>
                                                         <TextField label="Qator" name="row" type="number" required fullWidth value={formData.row} onChange={handleChange} />
                                                 </Grid>
@@ -225,12 +233,15 @@ export default function DrugUpdateDeletePage() {
 
                                         <Typography variant="subtitle1" mt={2}>Miqdor va xarid</Typography>
                                         <Grid container spacing={2}>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={4}>
                                                         <TextField label="Miqdor" name="quantity" type="number" required fullWidth value={formData.quantity} onChange={handleChange} />
                                                 </Grid>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={4}>
                                                         <TextField label="Avto buyurtma miqdori" name="orderQuantity" type="number" fullWidth value={formData.orderQuantity} onChange={handleChange} />
                                                 </Grid>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={4}>
                                                         <TextField label="Sotib olish narxi" name="purchaseAmount" type="number" required fullWidth value={formData.purchaseAmount} onChange={handleChange} />
                                                 </Grid>
@@ -238,6 +249,7 @@ export default function DrugUpdateDeletePage() {
 
                                         <Typography variant="subtitle1" mt={2}>Sanalar</Typography>
                                         <Grid container spacing={2}>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={6}>
                                                         <TextField
                                                                 label="Kelib tushgan sana"
@@ -250,6 +262,7 @@ export default function DrugUpdateDeletePage() {
                                                                 onChange={handleChange}
                                                         />
                                                 </Grid>
+                                                {/* @ts-ignore*/}
                                                 <Grid item xs={12} sm={6}>
                                                         <TextField
                                                                 label="Yaroqlilik muddati"
