@@ -34,7 +34,6 @@ function getDaysInMonth(month: number, year: number) {
 }
 
 export default function SessionsChart() {
-         // @ts-ignore
         const { data: departments } = useReportByDepartment()
         const theme = useTheme();
         const data = getDaysInMonth(4, 2024);

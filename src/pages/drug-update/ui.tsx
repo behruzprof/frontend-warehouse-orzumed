@@ -1,6 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
-        Box, Button, TextField, Typography, Stack, Card as MuiCard
+        Box, Button, TextField, Typography, Stack, Card as MuiCard,
+        FormControl,
+        InputLabel,
+        Select,
+        MenuItem
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
@@ -60,6 +64,7 @@ export default function DrugUpdateDeletePage() {
                 purchaseAmount: '',
                 arrivalDate: '',
                 expiryDate: '',
+                category: ''
         });
 
         const timeoutRef = useRef<any>(null);
@@ -80,6 +85,7 @@ export default function DrugUpdateDeletePage() {
                                 purchaseAmount: String(data.purchaseAmount || ''),
                                 arrivalDate: data.arrivalDate || dayjs().format('YYYY-MM-DD'),
                                 expiryDate: data.expiryDate || '',
+                                category: data.category || 'AX'
                         });
                 }
         }, [data]);
@@ -212,6 +218,22 @@ export default function DrugUpdateDeletePage() {
                                                 {/* @ts-ignore*/}
                                                 <Grid item xs={12}>
                                                         <TextField label="Rasm URL" name="photo" fullWidth value={formData.photo} onChange={handleChange} />
+                                                </Grid>
+                                                {/* @ts-ignore*/}
+                                                <Grid item xs={12} sm={6}>
+                                                        <FormControl fullWidth required>
+                                                                <InputLabel>Kategoriya</InputLabel>
+                                                                <Select
+                                                                        name="category"
+                                                                        label="Kategoriya"
+                                                                        value={formData.category}
+                                                                        onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                                                                >
+                                                                        {["AX", "AY", "AZ", "BX", "BY", "BZ", "CX", "CY", "CZ"].map(cat => (
+                                                                                <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+                                                                        ))}
+                                                                </Select>
+                                                        </FormControl>
                                                 </Grid>
                                         </Grid>
 

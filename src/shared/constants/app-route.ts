@@ -5,6 +5,7 @@ export enum APP_ROUTES {
         REQUIREMENT_DRUG = '/requirement-drug',
         ANALYTICS = '/analytics',
         REPORTS = '/reports',
+        DEPARTMENTS = '/departments',
         // AUTH
         LOGIN = '/login',
         NOT_FOUND = '*',

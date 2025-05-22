@@ -12,6 +12,7 @@ export interface CreateDrug {
   arrivalDate: string
   expiryDate: string
   orderQuantity: number
+  category: string
 }
 
 export interface UpdateDrug {
@@ -28,6 +29,7 @@ export interface UpdateDrug {
   purchaseAmount?: number
   arrivalDate?: string
   expiryDate?: string
+  category?: string
 }
 
 export interface Drug {
@@ -45,4 +47,5 @@ export interface Drug {
   purchaseAmount: number
   arrivalDate: string
   expiryDate: string
+  category: string
 }

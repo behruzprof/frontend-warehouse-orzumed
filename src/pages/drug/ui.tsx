@@ -61,22 +61,34 @@ export const columns: GridColDef[] = [
     minWidth: 150,
   },
   {
-  field: "actions",
-  headerName: "HARAKATLAR",
-  sortable: false,
-  filterable: false,
-  renderCell: (params) => (
-    <Button
-      size="small"
-      onClick={() => window.location.href=`${APP_ROUTES.DRUG}/update/${params.id}`}
-    >
-      <Typography variant="body2" color="primary">
-        O'zgartirish
-      </Typography>
-    </Button>
-  ),
-  width: 120,
-}
+    field: "category",
+    headerName: "KATEGORIYA",
+    headerAlign: "left",
+    align: "left",
+    flex: 1,
+    maxWidth: 120,
+    cellClassName: (params) => {
+      const category = params.value
+      return `category-${category}`
+    }
+  },
+  {
+    field: "actions",
+    headerName: "HARAKATLAR",
+    sortable: false,
+    filterable: false,
+    renderCell: (params) => (
+      <Button
+        size="small"
+        onClick={() => window.location.href = `${APP_ROUTES.DRUG}/update/${params.id}`}
+      >
+        <Typography variant="body2" color="primary">
+          O'zgartirish
+        </Typography>
+      </Button>
+    ),
+    width: 120,
+  },
 ]
 
 const DrugPage = () => {
@@ -161,7 +173,11 @@ const DrugPage = () => {
         </Box>
       </Box>
 
-      <DataGrid onRowDoubleClick={handleRowClick} columns={columns} rows={filteredDrugs} />
+      <DataGrid
+        onRowDoubleClick={handleRowClick}
+        columns={columns}
+        rows={filteredDrugs}
+      />
     </Box>
   )
 }

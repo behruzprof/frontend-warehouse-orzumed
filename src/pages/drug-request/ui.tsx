@@ -8,20 +8,22 @@ import { useState } from "react";
 import { useDrugList } from "@/features/drug";
 import { useCreateDrugRequest } from "@/features/drug-request";
 import { useSnackbar } from "notistack";
+import { getDepartmentIdFromLocalStorage } from "@/shared/helpers/get-department-id";
 
 type SelectedDrug = {
         id: string;
         name: string;
         availableQuantity: number;
         transferQuantity: number;
+        quantity: number;
 };
 
 const TransferDrugPage = () => {
         const navigate = useNavigate();
         const { enqueueSnackbar } = useSnackbar();
         const [selectedDrugs, setSelectedDrugs] = useState<SelectedDrug[]>([]);
-        const { mutateAsync: createRequest , isPending} = useCreateDrugRequest();
-        const departmentId = "1";
+        const { mutateAsync: createRequest, isPending } = useCreateDrugRequest();
+        const departmentId = getDepartmentIdFromLocalStorage()
 
         const handleAddDrug = (drug: any) => {
                 setSelectedDrugs((prev) => {
@@ -32,6 +34,17 @@ const TransferDrugPage = () => {
         };
 
         const handleTransfer = async () => {
+                const invalidDrug = selectedDrugs.find(drug => drug.transferQuantity > drug.quantity);
+
+        
+                if (invalidDrug) {
+                        enqueueSnackbar(
+                                `Dori "${invalidDrug.name}" uchun miqdor mavjud emas. Maksimal omborda: ${invalidDrug.quantity}`,
+                                { variant: 'error' }
+                        );
+                        return;
+                }
+
                 try {
                         await Promise.all(
                                 selectedDrugs.map(drug =>
@@ -39,18 +52,18 @@ const TransferDrugPage = () => {
                                                 departmentId: +departmentId,
                                                 drugId: +drug.id,
                                                 quantity: drug.transferQuantity,
-                                                 // @ts-ignore
+                                                // @ts-ignore
                                                 status: "issued",
                                                 patientName: "Ichki o'tkazma",
                                         })
                                 )
                         );
-                        enqueueSnackbar("Muvaffaqiyatli o'tkazildi!", { variant: 'success' }); // ✅ успех
+                        enqueueSnackbar("Muvaffaqiyatli o'tkazildi!", { variant: 'success' });
                         setSelectedDrugs([]);
                 } catch (error: any) {
                         console.error("Xatolik yuz berdi:", error);
                         const message = error?.response?.data?.message || "Xatolik yuz berdi!";
-                        enqueueSnackbar(message, { variant: 'error' }); // ❌ ошибка
+                        enqueueSnackbar(message, { variant: 'error' });
                 }
         };
         const updateQuantity = (id: string, value: number) => {
@@ -139,6 +152,7 @@ const DrugAutocomplete = ({ onSelect }: { onSelect: (drug: any) => void }) => {
                                 renderInput={(params) => (
                                         <TextField
                                                 {...params}
+
                                                 label="Dori nomini qidiring"
                                                 variant="outlined"
                                                 fullWidth

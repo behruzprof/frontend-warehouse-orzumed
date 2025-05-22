@@ -7,6 +7,8 @@ import {
         Typography,
         Stack,
         Card as MuiCard,
+        Select,
+        MenuItem
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ColorModeIconDropdown from '@/shared/ui/color-mode-dropdown';
@@ -60,6 +62,7 @@ export default function DrugCreatePage() {
                 purchaseAmount: '',
                 arrivalDate: dayjs().format('YYYY-MM-DD'),
                 expiryDate: '',
+                category: 'AX',
         });
 
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,24 +110,47 @@ export default function DrugCreatePage() {
                                         <Typography variant="subtitle1">Asosiy ma'lumotlar</Typography>
                                         <Grid container spacing={2}>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={6}>
+                                                <Grid item xs={12} sm={6}>
                                                         <TextField label="Nomi" name="name" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={6}>
+                                                <Grid item xs={12} sm={6}>
                                                         <TextField label="O‘lchov birligi" name="unit" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={6}>
+                                                <Grid item xs={12} sm={6}>
                                                         <TextField label="Yetkazib beruvchi" name="supplier" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12}>
+                                                <Grid item xs={12}>
                                                         <TextField label="Tavsif" name="description" fullWidth onChange={handleChange} />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12}>
+                                                <Grid item xs={12}>
                                                         <TextField label="Rasm URL" name="photo" fullWidth onChange={handleChange} />
+                                                </Grid>
+                                                 {/* @ts-ignore*/}
+                                                <Grid item xs={12} sm={6}>
+                                                        <Select
+                                                                label="Kategoriya"
+                                                                name="category"
+                                                                value={formData.category}
+                                                                /* @ts-ignore*/
+                                                                onChange={handleChange}
+                                                                required
+                                                                fullWidth
+                                                                displayEmpty
+                                                        >
+                                                                <MenuItem value="AX">AX</MenuItem>
+                                                                <MenuItem value="AY">AY</MenuItem>
+                                                                <MenuItem value="AZ">AZ</MenuItem>
+                                                                <MenuItem value="BX">BX</MenuItem>
+                                                                <MenuItem value="BY">BY</MenuItem>
+                                                                <MenuItem value="BZ">BZ</MenuItem>
+                                                                <MenuItem value="CX">CX</MenuItem>
+                                                                <MenuItem value="CY">CY</MenuItem>
+                                                                <MenuItem value="CZ">CZ</MenuItem>
+                                                        </Select>
                                                 </Grid>
                                         </Grid>
 
@@ -132,15 +158,15 @@ export default function DrugCreatePage() {
                                         <Typography variant="subtitle1" mt={2}>Sklad joylashuvi</Typography>
                                         <Grid container spacing={2}>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={4}>
+                                                <Grid item xs={12} sm={4}>
                                                         <TextField label="Shkaf" name="shelf" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={4}>
+                                                <Grid item xs={12} sm={4}>
                                                         <TextField label="Polka" name="section" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={4}>
+                                                <Grid item xs={12} sm={4}>
                                                         <TextField label="Qator" name="row" type="number" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                         </Grid>
@@ -149,15 +175,15 @@ export default function DrugCreatePage() {
                                         <Typography variant="subtitle1" mt={2}>Miqdor va xarid</Typography>
                                         <Grid container spacing={2}>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={4}>
+                                                <Grid item xs={12} sm={4}>
                                                         <TextField label="Miqdor" name="quantity" type="number" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={4}>
+                                                <Grid item xs={12} sm={4}>
                                                         <TextField label="Avto buyurtma miqdori" name="orderQuantity" type="number" fullWidth value={formData.orderQuantity} onChange={handleChange} />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={4}>
+                                                <Grid item xs={12} sm={4}>
                                                         <TextField label="Sotib olish narxi" name="purchaseAmount" type="number" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                         </Grid>
@@ -166,7 +192,7 @@ export default function DrugCreatePage() {
                                         <Typography variant="subtitle1" mt={2}>Sanalar</Typography>
                                         <Grid container spacing={2}>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={6}>
+                                                <Grid item xs={12} sm={6}>
                                                         <TextField
                                                                 label="Kelib tushgan sana"
                                                                 name="arrivalDate"
@@ -179,7 +205,7 @@ export default function DrugCreatePage() {
                                                         />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={6}>
+                                                <Grid item xs={12} sm={6}>
                                                         <TextField
                                                                 label="Yaroqlilik muddati"
                                                                 name="expiryDate"

@@ -1,7 +1,8 @@
 import { Outlet } from 'react-router-dom'
-import { alpha, Box, drawerClasses, Drawer as MuiDrawer,  Stack, styled, } from '@mui/material'
+import { alpha, Box, drawerClasses, Drawer as MuiDrawer, Stack, styled, } from '@mui/material'
 import MenuContent from './components/menu-content'
 import AppNavbar from './components/app-navbar'
+import { checkPasswordAndSetRole } from '@/shared/helpers/get-department-id';
 
 const drawerWidth = 240;
 
@@ -17,6 +18,8 @@ const Drawer = styled(MuiDrawer)({
 });
 
 const Layout = () => {
+        checkPasswordAndSetRole()
+
         return (
                 <Box sx={{ display: 'flex' }}>
                         <Drawer

@@ -4,9 +4,10 @@ interface DataGridProps {
         rows: any[];    // Replace 'any' with the actual type of your rows
         columns: any[]; // Replace 'any' with the actual type of your columns 
         onRowDoubleClick?: (params: any) => void;
+        pageSize?: number;
 }
 
-export default function DataGrid({ columns, rows, onRowDoubleClick }: DataGridProps) {
+export default function DataGrid({ columns, rows, onRowDoubleClick, pageSize }: DataGridProps) {
         return (
                 <MuiDataGrid
                         rows={rows}
@@ -16,9 +17,9 @@ export default function DataGrid({ columns, rows, onRowDoubleClick }: DataGridPr
                                 params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd'
                         }
                         initialState={{
-                                pagination: { paginationModel: { pageSize: 20 } },
+                                pagination: { paginationModel: { pageSize: pageSize || 20 } },
                         }}
-                        pageSizeOptions={[10, 20, 50]}
+                        pageSizeOptions={[5, 10, 20, 50]}
                         disableColumnResize
                         density="compact"
                         slotProps={{

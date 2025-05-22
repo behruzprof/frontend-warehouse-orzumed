@@ -17,6 +17,9 @@ import debounce from "lodash.debounce"
 import { useNavigate } from "react-router-dom"
 import { APP_ROUTES } from "@/shared/constants/app-route"
 import { useDrugRequestList } from "@/features/drug-request"
+import { getRoleFromLocalStorage, Roles } from "@/shared/helpers/get-department-id"
+
+const role = getRoleFromLocalStorage()
 
 export const columns: GridColDef[] = [
     {
@@ -61,18 +64,22 @@ export const columns: GridColDef[] = [
         headerName: "HARAKATLAR",
         sortable: false,
         filterable: false,
-        renderCell: (params) => (
-            <Button
-                size="small"
-                onClick={() =>
-                    window.location.href = `${APP_ROUTES.REQUIREMENT_DRUG}/update/${params.id}`
-                }
-            >
-                <Typography variant="body2" color="primary">
-                    O'zgartirish
-                </Typography>
-            </Button>
-        ),
+        renderCell: (params) => {
+            if (Roles.ADMIN === role) {
+                return (
+                    <Button
+                        size="small"
+                        onClick={() =>
+                            window.location.href = `${APP_ROUTES.REQUIREMENT_DRUG}/update/${params.id}`
+                        }
+                    >
+                        <Typography variant="body2" color="primary">
+                            O'zgartirish
+                        </Typography>
+                    </Button>
+                )
+            }
+        },
         width: 120,
     },
 ];
@@ -94,7 +101,7 @@ const DrugRequestPage = () => {
         if (!searchTerm) return requests ?? []
         return (requests ?? []).filter((item) =>
             item.drug?.name?.toLowerCase().includes(searchTerm)
-        ) 
+        )
     }, [requests, searchTerm])
 
     if (isLoading) {

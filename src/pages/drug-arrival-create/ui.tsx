@@ -11,6 +11,7 @@ import { useSnackbar } from 'notistack';
 // Импортируй хуки запроса списка лекарств и создания arrival
 import { useCreateDrugArrival } from '@/features/drug-arrival'; // создать приход
 import { useDrugList } from '@/features/drug';
+import { APP_ROUTES } from '@/shared/constants/app-route';
 
 const Card = styled(MuiCard)(({ theme }) => ({
         display: 'flex',
@@ -81,7 +82,7 @@ export default function ArrivalCreatePage() {
                         onSuccess: () => {
                                 enqueueSnackbar("Dori kelib tushuvi muvaffaqiyatli qo‘shildi!", { variant: "success" });
                                 setTimeout(() => {
-                                        navigate('/arrival');
+                                        navigate(APP_ROUTES.ARRIVALS_DRUG);
                                 }, 2000);
                         },
                         onError: () => {
@@ -103,12 +104,12 @@ export default function ArrivalCreatePage() {
                                         <Typography variant="subtitle1">Dori haqida</Typography>
                                         <Grid container spacing={2}>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12}>
+                                                <Grid item xs={12}>
                                                         <Autocomplete
                                                                 sx={{ width: 300 }}
                                                                 options={drugs}
                                                                 getOptionLabel={(option) => option.name}
-                                                                 // @ts-ignore
+                                                                // @ts-ignore
                                                                 onChange={(event, value) => setSelectedDrug(value)}
                                                                 renderInput={(params) => (
                                                                         <TextField {...params} label="Dori nomi" required fullWidth />
@@ -116,7 +117,7 @@ export default function ArrivalCreatePage() {
                                                         />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={6}>
+                                                <Grid item xs={12} sm={6}>
                                                         <TextField label="Yetkazib beruvchi" name="supplier" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                         </Grid>
@@ -125,11 +126,11 @@ export default function ArrivalCreatePage() {
                                         <Typography variant="subtitle1">Miqdor va narx</Typography>
                                         <Grid container spacing={2}>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={4}>
+                                                <Grid item xs={12} sm={4}>
                                                         <TextField label="Miqdor" name="quantity" type="number" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={4}>
+                                                <Grid item xs={12} sm={4}>
                                                         <TextField label="Sotib olish narxi" name="purchaseAmount" type="number" required fullWidth onChange={handleChange} />
                                                 </Grid>
                                         </Grid>
@@ -138,7 +139,7 @@ export default function ArrivalCreatePage() {
                                         <Typography variant="subtitle1">Sanalar</Typography>
                                         <Grid container spacing={2}>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={6}>
+                                                <Grid item xs={12} sm={6}>
                                                         <TextField
                                                                 label="Kelib tushgan sana"
                                                                 name="arrivalDate"
@@ -151,7 +152,7 @@ export default function ArrivalCreatePage() {
                                                         />
                                                 </Grid>
                                                 {/* @ts-ignore*/}
-<Grid item xs={12} sm={6}>
+                                                <Grid item xs={12} sm={6}>
                                                         <TextField
                                                                 label="Yaroqlilik muddati"
                                                                 name="expiryDate"
