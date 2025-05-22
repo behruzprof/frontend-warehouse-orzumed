@@ -1,7 +1,11 @@
 import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 
+// 'https://backend-warehouse-orzu-production.up.railway.app'
+
+// http://localhost:5000
+
 const clientApi = axios.create({
-  baseURL: 'http://localhost:5000',
+  baseURL: 'https://backend-warehouse-orzu-production.up.railway.app',
 })
 
 clientApi.interceptors.request.use(
