@@ -1,5 +1,5 @@
 import { Navigate } from 'react-router-dom'
-import { getRoleFromLocalStorage, Roles } from '@/shared/helpers/get-department-id'
+import { getRoleFromLocalStorage } from '@/shared/helpers/get-department-id'
 
 interface ProtectedRouteProps {
   allowedRole: string

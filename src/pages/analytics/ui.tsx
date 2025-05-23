@@ -5,7 +5,6 @@ import Chip from '@mui/material/Chip';
 import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import { LineChart } from '@mui/x-charts/LineChart';
-import { useReportByDepartment } from '@/features/drug-request';
 
 function AreaGradient({ color, id }: { color: string; id: string }) {
         return (
@@ -34,7 +33,6 @@ function getDaysInMonth(month: number, year: number) {
 }
 
 export default function SessionsChart() {
-        const { data: departments } = useReportByDepartment()
         const theme = useTheme();
         const data = getDaysInMonth(4, 2024);
 
