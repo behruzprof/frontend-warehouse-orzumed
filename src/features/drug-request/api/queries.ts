@@ -6,7 +6,7 @@ import {
   getDrugRequestById,
   getDrugRequestList,
   getReportByDepartment,
-  getReportByDrug,
+  getReportByDrugId,
   getReportByPatient,
   updateDrugRequest
 } from './api';
@@ -55,10 +55,11 @@ export const useReportByDepartment = () => {
   });
 };
 
-export const useReportByDrug = () => {
+export const useReportByDrugId = (drugId: number) => {
   return useQuery({
-    queryKey: ['drug-requests', 'report', 'by-drug'],
-    queryFn: getReportByDrug
+    queryKey: ['drug-requests', 'report', 'by-drug', drugId],
+    queryFn: () => getReportByDrugId(drugId),
+    enabled: !!drugId, // чтобы не выполнялся, если drugId пустой
   });
 };
 

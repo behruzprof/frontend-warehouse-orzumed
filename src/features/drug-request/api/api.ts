@@ -37,8 +37,8 @@ export const getReportByDepartment = async () => {
   return response.data;
 };
 
-export const getReportByDrug = async () => {
-  const response = await clientApi.get('/drug-requests/report/by-drug');
+export const getReportByDrugId = async (drugId: number) => {
+  const response = await clientApi.get(`/drug-requests/report/by-drug/${drugId}`);
   return response.data;
 };
 

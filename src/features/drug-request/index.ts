@@ -4,7 +4,7 @@ export {
   useDrugRequestById,
   useDrugRequestList,
   useReportByDepartment,
-  useReportByDrug,
+  useReportByDrugId,
   useReportByPatient,
   useUpdateDrugRequest
 } from './api'
