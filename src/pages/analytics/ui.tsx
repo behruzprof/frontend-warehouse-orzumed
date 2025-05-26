@@ -3,6 +3,7 @@ import { useTheme } from '@mui/material/styles';
 import { useReportByDepartment } from '@/features/drug-request';
 import { useDepartmentList } from '@/features/department';
 import ChartHeader from './components/chart-header';
+import Chart from './components/chart';
 
 export default function SessionsChartPage() {
         const { data: report, isLoading } = useReportByDepartment();
