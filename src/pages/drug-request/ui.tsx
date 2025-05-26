@@ -8,7 +8,8 @@ import { useState } from "react";
 import { useDrugList } from "@/features/drug";
 import { useCreateDrugRequest } from "@/features/drug-request";
 import { useSnackbar } from "notistack";
-import { getDepartmentIdFromLocalStorage } from "@/shared/helpers/get-department-id";
+import { getDepartmentIdFromLocalStorage, getRoleFromLocalStorage, Roles } from "@/shared/helpers/get-department-id";
+import { useDepartmentList } from "@/features/department";
 
 type SelectedDrug = {
         id: string;
@@ -18,124 +19,136 @@ type SelectedDrug = {
         quantity: number;
 };
 
+const role = getRoleFromLocalStorage();
+const isAdmin = role === Roles.ADMIN;
+
 const TransferDrugPage = () => {
-        const navigate = useNavigate();
-        const { enqueueSnackbar } = useSnackbar();
-        const [selectedDrugs, setSelectedDrugs] = useState<SelectedDrug[]>([]);
-        const { mutateAsync: createRequest, isPending } = useCreateDrugRequest();
-        const departmentId = getDepartmentIdFromLocalStorage()
+    const navigate = useNavigate();
+    const { enqueueSnackbar } = useSnackbar();
+    const { data: departments, isLoading: isDepartmentsLoading } = useDepartmentList();
+    const [selectedDrugs, setSelectedDrugs] = useState<SelectedDrug[]>([]);
+    const { mutateAsync: createRequest, isPending } = useCreateDrugRequest();
+    const localDepartmentId = getDepartmentIdFromLocalStorage();
+    const [selectedDepartmentId, setSelectedDepartmentId] = useState<string>(isAdmin ? "" : localDepartmentId);
 
-        const handleAddDrug = (drug: any) => {
-                setSelectedDrugs((prev) => {
-                        const exists = prev.find(d => d.id === drug.id);
-                        if (exists) return prev;
-                        return [...prev, { ...drug, transferQuantity: 1 }];
-                });
-        };
+    const handleAddDrug = (drug: any) => {
+        setSelectedDrugs((prev) => {
+            const exists = prev.find(d => d.id === drug.id);
+            if (exists) return prev;
+            return [...prev, { ...drug, transferQuantity: 1 }];
+        });
+    };
 
-        const handleTransfer = async () => {
-                const invalidDrug = selectedDrugs.find(drug => drug.transferQuantity > drug.quantity);
+    const handleTransfer = async () => {
+        const invalidDrug = selectedDrugs.find(drug => drug.transferQuantity > drug.quantity);
 
-        
-                if (invalidDrug) {
-                        enqueueSnackbar(
-                                `Dori "${invalidDrug.name}" uchun miqdor mavjud emas. Maksimal omborda: ${invalidDrug.quantity}`,
-                                { variant: 'error' }
-                        );
-                        return;
-                }
+        if (invalidDrug) {
+            enqueueSnackbar(
+                `Dori "${invalidDrug.name}" uchun miqdor mavjud emas. Maksimal omborda: ${invalidDrug.quantity}`,
+                { variant: 'error' }
+            );
+            return;
+        }
 
-                try {
-                        await Promise.all(
-                                selectedDrugs.map(drug =>
-                                        createRequest({
-                                                departmentId: +departmentId,
-                                                drugId: +drug.id,
-                                                quantity: drug.transferQuantity,
-                                                // @ts-ignore
-                                                status: "issued",
-                                                patientName: "Ichki o'tkazma",
-                                        })
-                                )
-                        );
-                        enqueueSnackbar("Muvaffaqiyatli o'tkazildi!", { variant: 'success' });
-                        setSelectedDrugs([]);
-                } catch (error: any) {
-                        console.error("Xatolik yuz berdi:", error);
-                        const message = error?.response?.data?.message || "Xatolik yuz berdi!";
-                        enqueueSnackbar(message, { variant: 'error' });
-                }
-        };
-        const updateQuantity = (id: string, value: number) => {
-                setSelectedDrugs(prev => prev.map(drug => drug.id === id ? { ...drug, transferQuantity: value } : drug));
-        };
+        if (!selectedDepartmentId) {
+            enqueueSnackbar("Iltimos, bo'limni tanlang.", { variant: 'error' });
+            return;
+        }
 
-        const handleReturn = (drugId: string) => {
-                setSelectedDrugs(prev => prev.filter(drug => drug.id !== drugId));
-        };
+        try {
+            await Promise.all(
+                selectedDrugs.map(drug =>
+                    createRequest({
+                        departmentId: +selectedDepartmentId,
+                        drugId: +drug.id,
+                        quantity: drug.transferQuantity,
+                        // @ts-ignore
+                        status: "issued",
+                        patientName: "Ichki o'tkazma",
+                    })
+                )
+            );
+            enqueueSnackbar("Muvaffaqiyatli o'tkazildi!", { variant: 'success' });
+            setSelectedDrugs([]);
+        } catch (error: any) {
+            console.error("Xatolik yuz berdi:", error);
+            const message = error?.response?.data?.message || "Xatolik yuz berdi!";
+            enqueueSnackbar(message, { variant: 'error' });
+        }
+    };
 
-        return (
-                <Box sx={{ maxWidth: 800, width: "100%", mx: "auto", mt: 4, overflowY: "auto" }}>
-                        <Box display="flex" flexDirection={{ xs: "column", md: "row" }} justifyContent={{ xs: "center", md: "space-between" }} mb={3}>
-                                <Typography variant="h5" mb={2}>Dori vositalarini o'tkazish</Typography>
-                                <Box display="flex" alignItems="center">
-                                        <Button
-                                                variant="contained"
-                                                size="medium"
-                                                color="secondary"
-                                                sx={{ ml: 1 }}
-                                                onClick={() => navigate(-1)}
-                                        >
-                                                Ortga qaytish
-                                        </Button>
-                                        <Button
-                                                variant="contained"
-                                                size="medium"
-                                                color="success"
-                                                sx={{ ml: 1 }}
-                                                onClick={() => navigate(`${APP_ROUTES.REQUIREMENT_DRUG}/list`)}
-                                        >
-                                                Talabnomalar ro'yxati
-                                        </Button>
-                                </Box>
-                        </Box>
+    const updateQuantity = (id: string, value: number) => {
+        setSelectedDrugs(prev => prev.map(drug => drug.id === id ? { ...drug, transferQuantity: value } : drug));
+    };
 
-                        <DrugAutocomplete onSelect={handleAddDrug} />
+    const handleReturn = (drugId: string) => {
+        setSelectedDrugs(prev => prev.filter(drug => drug.id !== drugId));
+    };
 
-                        <Box mt={3}>
-                                {selectedDrugs.map(drug => (
-                                        <Box
-                                                key={drug.id}
-                                                sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, border: "1px solid #ccc", p: 2, borderRadius: 2 }}
-                                        >
-                                                <Typography sx={{ flexGrow: 1 }}>{drug.name}</Typography>
-                                                <TextField
-                                                        type="number"
-                                                        label="Miqdori"
-                                                        value={drug.transferQuantity}
-                                                        onChange={(e) => updateQuantity(drug.id, parseInt(e.target.value))}
-                                                        inputProps={{ min: 1, max: drug.availableQuantity }}
-                                                        size="small"
-                                                />
-                                                <Button color="error" variant="contained" onClick={() => handleReturn(drug.id)}>
-                                                        Olib tashlash
-                                                </Button>
-                                        </Box>
-                                ))}
-                        </Box>
-
-                        <Button
-                                variant="contained"
-                                size="large"
-                                color="warning"
-                                onClick={handleTransfer}
-                                disabled={selectedDrugs.length === 0}
-                                loading={isPending}
-                        >
-                                O'z xisobimga o'tkazish
-                        </Button>
+    return (
+        <Box sx={{ maxWidth: 800, width: "100%", mx: "auto", mt: 4, overflowY: "auto" }}>
+            <Box display="flex" flexDirection={{ xs: "column", md: "row" }} justifyContent={{ xs: "center", md: "space-between" }} mb={3}>
+                <Typography variant="h5" mb={2}>Dori vositalarini o'tkazish</Typography>
+                <Box display="flex" alignItems="center">
+                    <Button variant="contained" size="medium" color="secondary" sx={{ ml: 1 }} onClick={() => navigate(-1)}>
+                        Ortga qaytish
+                    </Button>
+                    <Button variant="contained" size="medium" color="success" sx={{ ml: 1 }} onClick={() => navigate(`${APP_ROUTES.REQUIREMENT_DRUG}/list`)}>
+                        Talabnomalar ro'yxati
+                    </Button>
                 </Box>
-        );
+            </Box>
+
+            {isAdmin && (
+                <Box mb={3}>
+                    <Autocomplete
+                        options={departments || []}
+                        getOptionLabel={(option) => option.name}
+                        // @ts-ignore
+                        onChange={(_, value) => setSelectedDepartmentId(value?.id || "")}
+                        renderInput={(params) => (
+                            <TextField {...params} label="Bo‘limni tanlang" variant="outlined" fullWidth />
+                        )}
+                        loading={isDepartmentsLoading}
+                    />
+                </Box>
+            )}
+
+            <DrugAutocomplete onSelect={handleAddDrug} />
+
+            <Box mt={3}>
+                {selectedDrugs.map(drug => (
+                    <Box
+                        key={drug.id}
+                        sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, border: "1px solid #ccc", p: 2, borderRadius: 2 }}
+                    >
+                        <Typography sx={{ flexGrow: 1 }}>{drug.name}</Typography>
+                        <TextField
+                            type="number"
+                            label="Miqdori"
+                            value={drug.transferQuantity}
+                            onChange={(e) => updateQuantity(drug.id, parseInt(e.target.value))}
+                            inputProps={{ min: 1, max: drug.availableQuantity }}
+                            size="small"
+                        />
+                        <Button color="error" variant="contained" onClick={() => handleReturn(drug.id)}>
+                            Olib tashlash
+                        </Button>
+                    </Box>
+                ))}
+            </Box>
+
+            <Button
+                variant="contained"
+                size="large"
+                color="warning"
+                onClick={handleTransfer}
+                disabled={selectedDrugs.length === 0 || isPending}
+            >
+                O'z xisobimga o'tkazish
+            </Button>
+        </Box>
+    );
 };
 
 
