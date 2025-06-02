@@ -59,6 +59,14 @@ export const columns: GridColDef[] = [
                 },
         },
         {
+                field: "paymentType",
+                headerName: "TO'LOV TURI",
+                headerAlign: "left",
+                align: "left",
+                flex: 1,
+                minWidth: 120,
+        },
+        {
                 field: "arrivalDate",
                 headerName: "YETKAZIB BERILGAN SANASI",
                 headerAlign: "left",

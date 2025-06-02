@@ -29,14 +29,6 @@ export const columns: GridColDef[] = [
     minWidth: 120,
   },
   {
-    field: "unit",
-    headerName: "O`LCHOV BIRLIGI",
-    headerAlign: "left",
-    align: "left",
-    flex: 1,
-    minWidth: 100,
-  },
-  {
     field: "purchaseAmount",
     headerName: "DONA NARXI",
     headerAlign: "left",

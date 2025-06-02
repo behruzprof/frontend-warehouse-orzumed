@@ -3,7 +3,5 @@ export {
   useDeleteDrugArrival,
   useDrugArrivalById,
   useDrugArrivals,
-  useDrugArrivalsByPeriod,
-  useDrugArrivalsReportByRange,
-  useUpdateDrugArrival,
+  useUpdateDrugArrival
 } from './api'

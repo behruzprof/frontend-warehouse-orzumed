@@ -25,17 +25,3 @@ export const deleteDrugArrival = async (id: number) => {
   const response = await clientApi.delete(`/drug-arrivals/${id}`)
   return response.data
 }
-
-export const getDrugArrivalsByPeriod = async (start: string, end: string) => {
-  const response = await clientApi.get<DrugArrival[]>(`/drug-arrivals/report/by-period`, {
-    params: { start, end },
-  })
-  return response.data
-}
-
-export const getDrugArrivalsReportByRange = async (start: string, end: string) => {
-  const response = await clientApi.get(`/drug-arrivals/report/range`, {
-    params: { start, end },
-  })
-  return response.data
-}

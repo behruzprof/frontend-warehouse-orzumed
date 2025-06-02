@@ -7,8 +7,7 @@ import MuiProvider from "./mui-provider"
 const Providers = () => {
         return (
                 <StrictMode>
-                        <SnackbarProvider maxSnack={3} autoHideDuration={3000}>
-
+                        <SnackbarProvider maxSnack={3} autoHideDuration={5000}>
                                 <MuiProvider>
                                         <TanStackQueryProvider>
                                                 <RouterProvider />

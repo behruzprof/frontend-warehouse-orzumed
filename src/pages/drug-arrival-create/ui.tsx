@@ -1,6 +1,10 @@
 import * as React from 'react';
 import {
-        Box, Button, Grid, TextField, Typography, Stack, Card as MuiCard, Autocomplete
+        Box, Button, Grid, TextField, Typography, Stack, Card as MuiCard, Autocomplete,
+        FormControl,
+        InputLabel,
+        Select,
+        MenuItem
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import ColorModeIconDropdown from '@/shared/ui/color-mode-dropdown';
@@ -8,10 +12,12 @@ import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 
-// Импортируй хуки запроса списка лекарств и создания arrival
-import { useCreateDrugArrival } from '@/features/drug-arrival'; // создать приход
+import { useCreateDrugArrival } from '@/features/drug-arrival';
 import { useDrugList } from '@/features/drug';
 import { APP_ROUTES } from '@/shared/constants/app-route';
+import type { Drug } from '@/features/drug/types/drug';
+
+const paymentTypes = ['НДС', 'КОРПОРАТИВ КАРТА', 'НАКТ'];
 
 const Card = styled(MuiCard)(({ theme }) => ({
         display: 'flex',
@@ -46,7 +52,8 @@ export default function ArrivalCreatePage() {
         const navigate = useNavigate();
         const { enqueueSnackbar } = useSnackbar();
 
-        const [selectedDrug, setSelectedDrug] = React.useState<{ id: number; name: string } | null>(null);
+        // Теперь используем полный тип Drug, чтобы видеть minStock и maxStock
+        const [selectedDrug, setSelectedDrug] = React.useState<Drug | null>(null);
 
         const [formData, setFormData] = React.useState({
                 quantity: '',
@@ -54,6 +61,7 @@ export default function ArrivalCreatePage() {
                 arrivalDate: dayjs().format('YYYY-MM-DD'),
                 expiryDate: '',
                 supplier: '',
+                paymentType: 'НДС',  // добавлено
         });
 
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,6 +84,7 @@ export default function ArrivalCreatePage() {
                         arrivalDate: formData.arrivalDate,
                         expiryDate: formData.expiryDate,
                         supplier: formData.supplier,
+                        paymentType: formData.paymentType,  // обязательно!
                 };
 
                 mutate(payload, {
@@ -103,20 +112,27 @@ export default function ArrivalCreatePage() {
                                         {/* === Dori tanlash === */}
                                         <Typography variant="subtitle1">Dori haqida</Typography>
                                         <Grid container spacing={2}>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12}>
                                                         <Autocomplete
                                                                 sx={{ width: 300 }}
                                                                 options={drugs}
                                                                 getOptionLabel={(option) => option.name}
-                                                                // @ts-ignore
-                                                                onChange={(event, value) => setSelectedDrug(value)}
+                                                                onChange={(_, value) => setSelectedDrug(value)}
                                                                 renderInput={(params) => (
                                                                         <TextField {...params} label="Dori nomi" required fullWidth />
                                                                 )}
                                                         />
+                                                        {/* Показываем min и max stock */}
+                                                        {selectedDrug && (
+                                                                <Box mt={1} ml={0.5}>
+                                                                        <Typography variant="body2" color="text.secondary">
+                                                                                Minimal zaxira: <strong>{selectedDrug.minStock}</strong>, Maksimal zaxira: <strong>{selectedDrug.maxStock}</strong>
+                                                                        </Typography>
+                                                                </Box>
+                                                        )}
                                                 </Grid>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
                                                         <TextField label="Yetkazib beruvchi" name="supplier" required fullWidth onChange={handleChange} />
                                                 </Grid>
@@ -125,20 +141,36 @@ export default function ArrivalCreatePage() {
                                         {/* === Miqdor va narx === */}
                                         <Typography variant="subtitle1">Miqdor va narx</Typography>
                                         <Grid container spacing={2}>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={4}>
                                                         <TextField label="Miqdor" name="quantity" type="number" required fullWidth onChange={handleChange} />
                                                 </Grid>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={4}>
                                                         <TextField label="Sotib olish narxi" name="purchaseAmount" type="number" required fullWidth onChange={handleChange} />
+                                                </Grid>
+                                                {/* @ts-ignore */}
+                                                <Grid item xs={12} sm={6}>
+                                                        <FormControl fullWidth required>
+                                                                <InputLabel>To'lov turi</InputLabel>
+                                                                <Select
+                                                                        name="paymentType"
+                                                                        value={formData.paymentType}
+                                                                        // @ts-ignore
+                                                                        onChange={handleChange}
+                                                                >
+                                                                        {paymentTypes.map(c => (
+                                                                                <MenuItem key={c} value={c}>{c}</MenuItem>
+                                                                        ))}
+                                                                </Select>
+                                                        </FormControl>
                                                 </Grid>
                                         </Grid>
 
                                         {/* === Sanalar === */}
                                         <Typography variant="subtitle1">Sanalar</Typography>
                                         <Grid container spacing={2}>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
                                                         <TextField
                                                                 label="Kelib tushgan sana"
@@ -151,7 +183,7 @@ export default function ArrivalCreatePage() {
                                                                 onChange={handleChange}
                                                         />
                                                 </Grid>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
                                                         <TextField
                                                                 label="Yaroqlilik muddati"

@@ -9,10 +9,10 @@ import {
 import Grid from '@mui/material/Grid';
 import { styled } from '@mui/material/styles';
 import ColorModeIconDropdown from '@/shared/ui/color-mode-dropdown';
-import dayjs from 'dayjs';
 import { useDrugById, useUpdateDrug, useDeleteDrug } from '@/features/drug';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
+import type { UpdateDrug } from '@/features/drug/types/drug';
 
 const Card = styled(MuiCard)(({ theme }) => ({
         display: 'flex',
@@ -45,26 +45,23 @@ export default function DrugUpdateDeletePage() {
         const navigate = useNavigate();
 
         const { data, isLoading, error } = useDrugById(id as string);
-        const updateDrug = useUpdateDrug(id as string);
+        const { mutate: updateDrug, isPending } = useUpdateDrug(id as string);
         const deleteDrug = useDeleteDrug(id as string);
 
 
 
-        const [formData, setFormData] = useState({
+        const [formData, setFormData] = useState<UpdateDrug>({
                 name: '',
-                unit: '',
-                description: '',
-                photo: '',
                 shelf: '',
                 section: '',
-                row: '',
-                quantity: '',
-                orderQuantity: '',
                 supplier: '',
-                purchaseAmount: '',
                 arrivalDate: '',
                 expiryDate: '',
-                category: ''
+                category: '',
+                paymentType: 'НДС',
+                minStock: 0,
+                maxStock: 0,
+                purchaseAmount: 0,
         });
 
         const timeoutRef = useRef<any>(null);
@@ -72,26 +69,31 @@ export default function DrugUpdateDeletePage() {
         useEffect(() => {
                 if (data) {
                         setFormData({
-                                name: data.name || '',
-                                unit: data.unit || '',
-                                description: data.description || '',
-                                photo: data.photo || '',
+                                name: data.name,
                                 shelf: data.shelf || '',
                                 section: data.section || '',
-                                row: String(data.row || ''),
-                                quantity: String(data.quantity || ''),
-                                orderQuantity: String(data.orderQuantity || ''),
-                                supplier: data.supplier || '',
-                                purchaseAmount: String(data.purchaseAmount || ''),
-                                arrivalDate: data.arrivalDate || dayjs().format('YYYY-MM-DD'),
-                                expiryDate: data.expiryDate || '',
-                                category: data.category || 'AX'
+                                supplier: data.supplier,
+                                arrivalDate: data.arrivalDate,
+                                expiryDate: data.expiryDate,
+                                category: data.category,
+                                quantity: data.quantity,
+                                minStock: data.minStock,
+                                maxStock: data.maxStock,
+                                purchaseAmount: data.purchaseAmount,
+                                // @ts-ignore
+                                row: data.row
                         });
                 }
         }, [data]);
 
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-                const { name, value } = e.target;
+                const name = e.target.name!;
+                let value: string | number = e.target.value;
+
+                if (['quantity', 'minStock', 'maxStock', 'purchaseAmount', 'row'].includes(name)) {
+                        value = Number(value);
+                }
+
                 setFormData(prev => ({ ...prev, [name]: value }));
         };
 
@@ -99,10 +101,6 @@ export default function DrugUpdateDeletePage() {
                 e.preventDefault();
                 const payload = {
                         ...formData,
-                        row: parseInt(formData.row, 10),
-                        quantity: parseInt(formData.quantity, 10),
-                        orderQuantity: parseInt(formData.orderQuantity, 10),
-                        purchaseAmount: parseFloat(formData.purchaseAmount),
                 };
 
                 const snackbarKey = enqueueSnackbar('Yangilash uchun 5 soniya...', {
@@ -119,7 +117,7 @@ export default function DrugUpdateDeletePage() {
                 });
 
                 timeoutRef.current = setTimeout(() => {
-                        updateDrug.mutate(payload, {
+                        updateDrug(payload, {
                                 onSuccess: () => {
                                         closeSnackbar(snackbarKey);
                                         enqueueSnackbar("Dori muvaffaqiyatli yangilandi!", { variant: "success" });
@@ -196,110 +194,80 @@ export default function DrugUpdateDeletePage() {
 
                                 <Typography variant="h5">Dorini yangilash</Typography>
 
-                                <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
+                                        {/* Asosiy ma'lumotlar */}
                                         <Typography variant="subtitle1">Asosiy ma'lumotlar</Typography>
                                         <Grid container spacing={2}>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
-                                                        <TextField label="Nomi" name="name" required fullWidth value={formData.name} onChange={handleChange} />
+                                                        <TextField label="Nomi" disabled name="name" value={formData.name} onChange={handleChange} fullWidth required />
                                                 </Grid>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
-                                                        <TextField label="O‘lchov birligi" name="unit" required fullWidth value={formData.unit} onChange={handleChange} />
+                                                        <TextField label="Yetkazib beruvchi" name="supplier" value={formData.supplier} onChange={handleChange} fullWidth required />
                                                 </Grid>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
-                                                        <TextField label="Yetkazib beruvchi" name="supplier" required fullWidth value={formData.supplier} onChange={handleChange} />
+                                                        <TextField disabled label="Sotib olish narxi" name="purchaseAmount" type="number" value={formData.purchaseAmount || ""} fullWidth required />
                                                 </Grid>
-                                                {/* @ts-ignore*/}
-                                                <Grid item xs={12}>
-                                                        <TextField label="Tavsif" name="description" fullWidth value={formData.description} onChange={handleChange} />
-                                                </Grid>
-                                                {/* @ts-ignore*/}
-                                                <Grid item xs={12}>
-                                                        <TextField label="Rasm URL" name="photo" fullWidth value={formData.photo} onChange={handleChange} />
-                                                </Grid>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
                                                         <FormControl fullWidth required>
                                                                 <InputLabel>Kategoriya</InputLabel>
                                                                 <Select
                                                                         name="category"
-                                                                        label="Kategoriya"
                                                                         value={formData.category}
-                                                                        onChange={e => setFormData(prev => ({ ...prev, category: e.target.value }))}
+                                                                        // @ts-ignore
+                                                                        onChange={handleChange}
                                                                 >
-                                                                        {["AX", "AY", "AZ", "BX", "BY", "BZ", "CX", "CY", "CZ"].map(cat => (
-                                                                                <MenuItem key={cat} value={cat}>{cat}</MenuItem>
+                                                                        {['AX', 'AY', 'AZ', 'BX', 'BY', 'BZ', 'CX', 'CY', 'CZ'].map(c => (
+                                                                                <MenuItem key={c} value={c}>{c}</MenuItem>
                                                                         ))}
                                                                 </Select>
                                                         </FormControl>
                                                 </Grid>
                                         </Grid>
 
-                                        <Typography variant="subtitle1" mt={2}>Sklad joylashuvi</Typography>
+                                        {/* Xarid va miqdor */}
+                                        <Typography variant="subtitle1">Miqdor va xarid</Typography>
                                         <Grid container spacing={2}>
-                                                {/* @ts-ignore*/}
-                                                <Grid item xs={12} sm={4}>
-                                                        <TextField label="Shkaf" name="shelf" required fullWidth value={formData.shelf} onChange={handleChange} />
-                                                </Grid>
-                                                {/* @ts-ignore*/}
-                                                <Grid item xs={12} sm={4}>
-                                                        <TextField label="Polka" name="section" required fullWidth value={formData.section} onChange={handleChange} />
-                                                </Grid>
-                                                {/* @ts-ignore*/}
-                                                <Grid item xs={12} sm={4}>
-                                                        <TextField label="Qator" name="row" type="number" required fullWidth value={formData.row} onChange={handleChange} />
-                                                </Grid>
-                                        </Grid>
-
-                                        <Typography variant="subtitle1" mt={2}>Miqdor va xarid</Typography>
-                                        <Grid container spacing={2}>
-                                                {/* @ts-ignore*/}
-                                                <Grid item xs={12} sm={4}>
-                                                        <TextField label="Miqdor" name="quantity" type="number" required fullWidth value={formData.quantity} onChange={handleChange} />
-                                                </Grid>
-                                                {/* @ts-ignore*/}
-                                                <Grid item xs={12} sm={4}>
-                                                        <TextField label="Avto buyurtma miqdori" name="orderQuantity" type="number" fullWidth value={formData.orderQuantity} onChange={handleChange} />
-                                                </Grid>
-                                                {/* @ts-ignore*/}
-                                                <Grid item xs={12} sm={4}>
-                                                        <TextField label="Sotib olish narxi" name="purchaseAmount" type="number" required fullWidth value={formData.purchaseAmount} onChange={handleChange} />
-                                                </Grid>
-                                        </Grid>
-
-                                        <Typography variant="subtitle1" mt={2}>Sanalar</Typography>
-                                        <Grid container spacing={2}>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
-                                                        <TextField
-                                                                label="Kelib tushgan sana"
-                                                                name="arrivalDate"
-                                                                type="date"
-                                                                required
-                                                                fullWidth
-                                                                InputLabelProps={{ shrink: true }}
-                                                                value={formData.arrivalDate}
-                                                                onChange={handleChange}
-                                                        />
+                                                        <TextField disabled InputProps={{ readOnly: true }} label="Qolgan miqdor" name="quantity" type="number" value={formData.quantity || ""} onChange={handleChange} fullWidth required />
                                                 </Grid>
-                                                {/* @ts-ignore*/}
+                                                {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
-                                                        <TextField
-                                                                label="Yaroqlilik muddati"
-                                                                name="expiryDate"
-                                                                type="date"
-                                                                required
-                                                                fullWidth
-                                                                InputLabelProps={{ shrink: true }}
-                                                                value={formData.expiryDate}
-                                                                onChange={handleChange}
-                                                        />
+                                                        <TextField label="Minimal zaxira" name="minStock" type="number" value={formData.minStock || ""} onChange={handleChange} fullWidth required />
+                                                </Grid>
+                                                {/* @ts-ignore */}
+                                                <Grid item xs={12} sm={6}>
+                                                        <TextField label="Maksimal zaxira" name="maxStock" type="number" value={formData.maxStock || ""} onChange={handleChange} fullWidth required />
+                                                </Grid>
+
+                                        </Grid>
+
+                                        {/* Sklad joylashuvi */}
+                                        <Typography variant="subtitle1">Sklad joylashuvi</Typography>
+                                        <Grid container spacing={2}>
+                                                {/* @ts-ignore */}
+                                                <Grid item xs={12} sm={4}>
+                                                        <TextField label="Shkaf" name="shelf" value={formData.shelf} onChange={handleChange} fullWidth />
+                                                </Grid>
+                                                {/* @ts-ignore */}
+                                                <Grid item xs={12} sm={4}>
+                                                        <TextField label="Polka" name="section" value={formData.section} onChange={handleChange} fullWidth />
+                                                </Grid>
+                                                {/* @ts-ignore */}
+                                                <Grid item xs={12} sm={4}>
+                                                        <TextField label="Qator" name="row" type="number" value={formData.row || ""} onChange={handleChange} fullWidth />
                                                 </Grid>
                                         </Grid>
 
-                                        <Button type="submit" variant="contained">Yangilash</Button>
+                                        <Box mt={3}>
+                                                <Button type="submit" variant="contained" disabled={isPending}>
+                                                        Saqlash
+                                                </Button>
+                                        </Box>
                                 </Box>
                         </Card>
                 </Container>

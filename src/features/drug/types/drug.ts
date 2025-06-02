@@ -1,51 +1,34 @@
-export interface CreateDrug {
-  name: string
-  unit: string
-  description?: string
-  photo?: string
-  shelf: string
-  section: string
-  row: number
-  quantity: number
-  supplier: string
-  purchaseAmount: number
-  arrivalDate: string
-  expiryDate: string
-  orderQuantity: number
-  category: string
+export interface CreateDrugDto {
+  name: string // Название лекарства (обязательно)
+  quantity: number // Количество в наличии (обязательно)
+  minStock: number // Минимальный запас (обязательно)
+  maxStock: number // Максимальный запас (обязательно)
+  supplier: string // Название поставщика (обязательно)
+  purchaseAmount: number // Сумма закупки (обязательно)
+  expiryDate: string // Срок годности (обязательно)
+  shelf?: string // Номер шкафа
+  section?: string // Секция/полка
+  row?: number // Ряд (индекс)
+  category?: string // Категория (например, "антибиотик")
+  arrivalDate?: string // Дата последнего прихода
+  paymentType: string
 }
 
-export interface UpdateDrug {
-  name?: string
-  unit?: string
-  description?: string
-  photo?: string
-  shelf?: string
-  section?: string
-  row?: number
-  quantity?: number
-  orderQuantity?: number
-  supplier?: string
-  purchaseAmount?: number
-  arrivalDate?: string
-  expiryDate?: string
-  category?: string
-}
+export interface UpdateDrug extends Partial<CreateDrugDto> {}
 
 export interface Drug {
-  id: string
+  id: number
   name: string
-  unit: string
-  description?: string
-  photo?: string
-  shelf: string
-  section: string
-  row: number
   quantity: number
-  orderQuantity: number
+  minStock: number
+  maxStock: number
   supplier: string
   purchaseAmount: number
-  arrivalDate: string
-  expiryDate: string
+  expiryDate: string // ISO-строка
+  shelf?: string | null
+  section?: string | null
+  row?: number | null
   category: string
+  manufacturer?: string | null
+  arrivalDate: string // ISO-строка
 }

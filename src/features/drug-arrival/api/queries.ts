@@ -4,8 +4,6 @@ import {
   deleteDrugArrival,
   getDrugArrivalById,
   getDrugArrivals,
-  getDrugArrivalsByPeriod,
-  getDrugArrivalsReportByRange,
   updateDrugArrival,
 } from './api'
 import type { UpdateDrugArrivalDto } from '../types/drug-arrival'
@@ -45,22 +43,4 @@ export const useDeleteDrugArrival = (id: number) => {
     mutationKey: ['drug-arrivals'],
     mutationFn: () => deleteDrugArrival(id),
   })
-}
-
-export const useDrugArrivalsByPeriod = (start: string, end: string) => {
-  const { data, error, isLoading } = useQuery({
-    queryKey: ['drug-arrivals', 'period', start, end],
-    queryFn: () => getDrugArrivalsByPeriod(start, end),
-    enabled: !!start && !!end,
-  })
-  return { data, error, isLoading }
-}
-
-export const useDrugArrivalsReportByRange = (start: string, end: string) => {
-  const { data, error, isLoading } = useQuery({
-    queryKey: ['drug-arrivals', 'report-range', start, end],
-    queryFn: () => getDrugArrivalsReportByRange(start, end),
-    enabled: !!start && !!end,
-  })
-  return { data, error, isLoading }
 }

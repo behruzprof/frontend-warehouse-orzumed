@@ -16,6 +16,8 @@ import { DepartmentCreatePage } from '@/pages/department-create'
 import { DepartmentUpdateDeletePage } from '@/pages/department-update'
 import { getRoleFromLocalStorage, Roles } from '@/shared/helpers/get-department-id'
 import ProtectedRoute from '@/shared/hoc/protected-route'
+import { DrugOrderPage } from '@/pages/drug-order'
+import { ReportPage } from '@/pages/report'
 
 const role = getRoleFromLocalStorage()
 
@@ -125,6 +127,22 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRole={Roles.ADMIN}>
             <DepartmentUpdateDeletePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: `${APP_ROUTES.ORDER_DRUG}`,
+        element: (
+          <ProtectedRoute allowedRole={Roles.ADMIN}>
+            <DrugOrderPage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: `${APP_ROUTES.REPORTS}`,
+        element: (
+          <ProtectedRoute allowedRole={Roles.ADMIN}>
+            <ReportPage />
           </ProtectedRoute>
         ),
       },

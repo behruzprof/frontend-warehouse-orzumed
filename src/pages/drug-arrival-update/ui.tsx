@@ -205,6 +205,7 @@ export default function DrugArrivalUpdateAndDeletePage() {
 <Grid item xs={12} sm={6}>
               <TextField
                 label="Kelib tushgan sana"
+                disabled
                 name="arrivalDate"
                 type="date"
                 required
