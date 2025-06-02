@@ -5,6 +5,7 @@ import {
   getDrugArrivalById,
   getDrugArrivals,
   updateDrugArrival,
+  getReport
 } from './api'
 import type { UpdateDrugArrivalDto } from '../types/drug-arrival'
 
@@ -42,5 +43,12 @@ export const useDeleteDrugArrival = (id: number) => {
   return useMutation({
     mutationKey: ['drug-arrivals'],
     mutationFn: () => deleteDrugArrival(id),
+  })
+}
+
+export const useReport = () => {
+  return useMutation({
+    mutationKey: ['report'],
+    mutationFn: ({ month, year }: { month: string; year: string }) => getReport(month, year),
   })
 }

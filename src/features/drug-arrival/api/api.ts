@@ -25,3 +25,11 @@ export const deleteDrugArrival = async (id: number) => {
   const response = await clientApi.delete(`/drug-arrivals/${id}`)
   return response.data
 }
+
+export const getReport = async (month: string, year: string) => {
+  const response = await clientApi.post(`/report`, {
+    month,
+    year
+  })
+  return response.data
+}

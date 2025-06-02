@@ -3,5 +3,6 @@ export {
   useDeleteDrugArrival,
   useDrugArrivalById,
   useDrugArrivals,
-  useUpdateDrugArrival
+  useUpdateDrugArrival,
+  useReport
 } from './queries'

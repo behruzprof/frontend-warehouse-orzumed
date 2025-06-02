@@ -4,46 +4,125 @@ import {
   Button,
   Snackbar,
   CircularProgress,
+  TextField,
+  MenuItem,
+  Alert,
 } from '@mui/material';
 import TelegramIcon from '@mui/icons-material/Telegram';
-import { format, subDays } from 'date-fns';
-import { useArrivalsReportByRange } from '@/features/reports';
+import { useReport } from '@/features/drug-arrival/api';
+import { format } from 'date-fns';
+
+const months = [
+  { value: '01', label: 'Январь' },
+  { value: '02', label: 'Февраль' },
+  { value: '03', label: 'Март' },
+  { value: '04', label: 'Апрель' },
+  { value: '05', label: 'Май' },
+  { value: '06', label: 'Июнь' },
+  { value: '07', label: 'Июль' },
+  { value: '08', label: 'Август' },
+  { value: '09', label: 'Сентябрь' },
+  { value: '10', label: 'Октябрь' },
+  { value: '11', label: 'Ноябрь' },
+  { value: '12', label: 'Декабрь' },
+];
 
 const ReportPage: React.FC = () => {
-  const [range] = useState({
-    start: format(subDays(new Date(), 30), 'yyyy-MM-dd'),
-    end: format(new Date(), 'yyyy-MM-dd'),
-  });
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const currentDate = new Date();
+  const [month, setMonth] = useState(format(currentDate, 'MM'));
+  const [year, setYear] = useState(format(currentDate, 'yyyy'));
   const [sending, setSending] = useState(false);
+  const [snackbar, setSnackbar] = useState<{
+    open: boolean;
+    message: string;
+    severity: 'success' | 'error';
+  }>({
+    open: false,
+    message: '',
+    severity: 'success',
+  });
 
-  const { data, isLoading } = useArrivalsReportByRange(range.start, range.end);
+  const { mutate: reportMutate } = useReport();
 
-  const handleSendTelegram = async () => {
-    if (!data) return;
-
+  const handleSendTelegram = () => {
     setSending(true);
-    try {
-      // Имитируем отправку отчёта
-      await new Promise((r) => setTimeout(r, 1500));
+    reportMutate(
+      { month, year },
+      {
+        onSuccess: () => {
+          setSnackbar({
+            open: true,
+            message: 'Отчёт успешно отправлен в Telegram ✅',
+            severity: 'success',
+          });
+          setSending(false);
+        },
+        onError: async (error: any) => {
+          let message = 'Ошибка отправки отчёта';
 
-      setSnackbarOpen(true);
-    } catch {
-      alert('Ошибка отправки отчёта в Telegram');
-    } finally {
-      setSending(false);
-    }
+          try {
+            if (error?.response?.data instanceof Blob) {
+              const text = await error.response.data.text();
+              try {
+                const json = JSON.parse(text);
+                message = json.message || message;
+              } catch {
+                message = text;
+              }
+            } else if (typeof error?.response?.data === 'string') {
+              message = error.response.data;
+            } else {
+              message = error?.response?.data?.message || message;
+            }
+          } catch {
+            message = 'Произошла неизвестная ошибка при обработке ошибки';
+          }
+
+          setSnackbar({
+            open: true,
+            message,
+            severity: 'error',
+          });
+          setSending(false);
+        },
+      }
+    );
   };
 
   return (
-    <Box p={3} maxWidth="1200px" mx="auto">
+    <Box p={3} maxWidth="600px" mx="auto">
+      <Box display="flex" gap={2} mb={3}>
+        <TextField
+          select
+          label="Месяц"
+          value={month}
+          onChange={(e) => setMonth(e.target.value)}
+          fullWidth
+        >
+          {months.map((option) => (
+            <MenuItem key={option.value} value={option.value}>
+              {option.label}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        <TextField
+          type="number"
+          label="Год"
+          value={year}
+          onChange={(e) => setYear(e.target.value)}
+          fullWidth
+          inputProps={{ min: 2000, max: 2100 }}
+        />
+      </Box>
+
       <Box display="flex" justifyContent="flex-start" mb={3}>
         <Button
           variant="contained"
           color="primary"
           startIcon={!sending ? <TelegramIcon /> : undefined}
           onClick={handleSendTelegram}
-          disabled={sending || isLoading || !data}
+          disabled={sending}
           sx={{
             height: 42,
             whiteSpace: 'nowrap',
@@ -72,12 +151,19 @@ const ReportPage: React.FC = () => {
       </Box>
 
       <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={4000}
-        onClose={() => setSnackbarOpen(false)}
-        message="Отчёт успешно отправлен в Telegram ✅"
+        open={snackbar.open}
+        autoHideDuration={5000}
+        onClose={() => setSnackbar({ ...snackbar, open: false })}
         anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-      />
+      >
+        <Alert
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+          severity={snackbar.severity}
+          sx={{ width: '100%' }}
+        >
+          {snackbar.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };
