@@ -200,7 +200,7 @@ export default function DrugUpdateDeletePage() {
                                         <Grid container spacing={2}>
                                                 {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
-                                                        <TextField label="Nomi" disabled name="name" value={formData.name} onChange={handleChange} fullWidth required />
+                                                        <TextField label="Nomi" name="name" value={formData.name} onChange={handleChange} fullWidth required />
                                                 </Grid>
                                                 {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
@@ -208,7 +208,7 @@ export default function DrugUpdateDeletePage() {
                                                 </Grid>
                                                 {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
-                                                        <TextField disabled label="Sotib olish narxi" name="purchaseAmount" type="number" value={formData.purchaseAmount || ""} fullWidth required />
+                                                        <TextField label="Sotib olish narxi" name="purchaseAmount" type="number" value={formData.purchaseAmount || ""} fullWidth required />
                                                 </Grid>
                                                 {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
@@ -233,7 +233,7 @@ export default function DrugUpdateDeletePage() {
                                         <Grid container spacing={2}>
                                                 {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
-                                                        <TextField disabled InputProps={{ readOnly: true }} label="Qolgan miqdor" name="quantity" type="number" value={formData.quantity || ""} onChange={handleChange} fullWidth required />
+                                                        <TextField label="Qolgan miqdor" name="quantity" type="number" value={formData.quantity || ""} onChange={handleChange} fullWidth required />
                                                 </Grid>
                                                 {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
