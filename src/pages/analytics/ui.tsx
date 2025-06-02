@@ -99,7 +99,7 @@ export default function SessionsChartPage() {
                             options={drugs}
                             getOptionLabel={(option) => option.name}
                             value={selectedDrug}
-                            onChange={(event, newValue) => setSelectedDrug(newValue)}
+                            onChange={(_, newValue) => setSelectedDrug(newValue)}
                             renderInput={(params) => (
                                 <TextField {...params} label="Dori tanlang" variant="outlined" />
                             )}
