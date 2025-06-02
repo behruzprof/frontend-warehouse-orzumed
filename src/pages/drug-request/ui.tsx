@@ -41,42 +41,38 @@ const TransferDrugPage = () => {
     };
 
     const handleTransfer = async () => {
-        const invalidDrug = selectedDrugs.find(drug => drug.transferQuantity > drug.quantity);
+    const invalidDrug = selectedDrugs.find(drug => drug.transferQuantity > drug.quantity);
 
-        if (invalidDrug) {
-            enqueueSnackbar(
-                `Dori "${invalidDrug.name}" uchun miqdor mavjud emas. Maksimal omborda: ${invalidDrug.quantity}`,
-                { variant: 'error' }
-            );
-            return;
-        }
+    if (invalidDrug) {
+        enqueueSnackbar(
+            `Dori "${invalidDrug.name}" uchun miqdor mavjud emas. Maksimal omborda: ${invalidDrug.quantity}`,
+            { variant: 'error' }
+        );
+        return;
+    }
 
-        if (!selectedDepartmentId) {
-            enqueueSnackbar("Iltimos, bo'limni tanlang.", { variant: 'error' });
-            return;
-        }
+    if (!selectedDepartmentId) {
+        enqueueSnackbar("Iltimos, bo'limni tanlang.", { variant: 'error' });
+        return;
+    }
 
-        try {
-            await Promise.all(
-                selectedDrugs.map(drug =>
-                    createRequest({
-                        departmentId: +selectedDepartmentId,
-                        drugId: +drug.id,
-                        quantity: drug.transferQuantity,
-                        // @ts-ignore
-                        status: "issued",
-                        patientName: "Ichki o'tkazma",
-                    })
-                )
-            );
-            enqueueSnackbar("Muvaffaqiyatli o'tkazildi!", { variant: 'success' });
-            setSelectedDrugs([]);
-        } catch (error: any) {
-            console.error("Xatolik yuz berdi:", error);
-            const message = error?.response?.data?.message || "Xatolik yuz berdi!";
-            enqueueSnackbar(message, { variant: 'error' });
-        }
-    };
+    try {
+        const payload = selectedDrugs.map(drug => ({
+            departmentId: +selectedDepartmentId,
+            drugId: +drug.id,
+            quantity: drug.transferQuantity,
+        }));
+
+        await createRequest(payload); // ЕДИНЫЙ запрос
+
+        enqueueSnackbar("Muvaffaqiyatli o'tkazildi!", { variant: 'success' });
+        setSelectedDrugs([]);
+    } catch (error: any) {
+        console.error("Xatolik yuz berdi:", error);
+        const message = error?.response?.data?.message || "Xatolik yuz berdi!";
+        enqueueSnackbar(message, { variant: 'error' });
+    }
+};
 
     const updateQuantity = (id: string, value: number) => {
         if (isNaN(value) || value < 1) value = 1;

@@ -16,7 +16,7 @@ export const getDrugRequestById = async (id: number) => {
   return response.data;
 };
 
-export const createDrugRequest = async (data: CreateDrugRequest) => {
+export const createDrugRequest = async (data: CreateDrugRequest[]) => {
   const response = await clientApi.post('/drug-requests', data);
   return response.data;
 };

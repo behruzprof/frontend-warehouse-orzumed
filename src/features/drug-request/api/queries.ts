@@ -29,7 +29,7 @@ export const useDrugRequestById = (id: number) => {
 export const useCreateDrugRequest = () => {
   return useMutation({
     mutationKey: ['drug-requests'],
-    mutationFn: (data: CreateDrugRequest) => createDrugRequest(data)
+    mutationFn: (data: CreateDrugRequest[]) => createDrugRequest(data)
   });
 };
 

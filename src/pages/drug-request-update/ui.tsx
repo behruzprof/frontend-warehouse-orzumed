@@ -13,7 +13,6 @@ import {
   useDeleteDrugRequest,
 } from '@/features/drug-request';
 import { APP_ROUTES } from '@/shared/constants/app-route';
-import { DrugRequestStatus } from '@/features/drug-request/types/drug-request';
 
 
 const Card = styled(MuiCard)(({ theme }) => ({
@@ -53,16 +52,12 @@ export default function DrugRequestUpdateAndDeletePage() {
 
   const [formData, setFormData] = useState({
     quantity: '',
-    patientName: '',
-    status: DrugRequestStatus.ISSUED,
   });
 
   useEffect(() => {
     if (data) {
       setFormData({
         quantity: String(data.quantity),
-        patientName: data.patientName || '',
-        status: data.status || DrugRequestStatus.ISSUED,
       });
     }
   }, [data]);
@@ -72,17 +67,11 @@ export default function DrugRequestUpdateAndDeletePage() {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleStatusChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setFormData(prev => ({ ...prev, status: e.target.value as DrugRequestStatus }));
-  };
-
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     const payload = {
       quantity: parseInt(formData.quantity),
-      patientName: formData.patientName,
-      status: formData.status,
     };
 
     const snackbarKey = enqueueSnackbar('Yangilash uchun 5 soniya...', {
@@ -189,33 +178,6 @@ export default function DrugRequestUpdateAndDeletePage() {
                 value={formData.quantity}
                 onChange={handleChange}
               />
-            </Grid>
-
-            {/* @ts-ignore*/}
-            <Grid item xs={12} sm={6}>
-              <TextField
-                label="Bemor ismi"
-                name="patientName"
-                fullWidth
-                value={formData.patientName}
-                onChange={handleChange}
-              />
-            </Grid>
-
-            {/* @ts-ignore*/}
-            <Grid item xs={12}>
-              <TextField
-                label="Status"
-                name="status"
-                select
-                SelectProps={{ native: true }}
-                fullWidth
-                value={formData.status}
-                // @ts-ignore
-                onChange={handleStatusChange}
-              >
-                <option value={DrugRequestStatus.ISSUED}>ISSUED</option>
-              </TextField>
             </Grid>
           </Grid>
 
