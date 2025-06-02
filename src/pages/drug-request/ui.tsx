@@ -1,5 +1,5 @@
 import {
-        Box, Button, Typography
+    Box, Button, Typography
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { APP_ROUTES } from "@/shared/constants/app-route";
@@ -12,14 +12,15 @@ import { getDepartmentIdFromLocalStorage, getRoleFromLocalStorage, Roles } from 
 import { useDepartmentList } from "@/features/department";
 
 type SelectedDrug = {
-        id: string;
-        name: string;
-        availableQuantity: number;
-        transferQuantity: number;
-        quantity: number;
+    id: string;
+    name: string;
+    availableQuantity: number;
+    transferQuantity: number;
+    quantity: number;
 };
 
 const role = getRoleFromLocalStorage();
+const departmentId = getDepartmentIdFromLocalStorage()
 const isAdmin = role === Roles.ADMIN;
 
 const TransferDrugPage = () => {
@@ -78,7 +79,10 @@ const TransferDrugPage = () => {
     };
 
     const updateQuantity = (id: string, value: number) => {
-        setSelectedDrugs(prev => prev.map(drug => drug.id === id ? { ...drug, transferQuantity: value } : drug));
+        if (isNaN(value) || value < 1) value = 1;
+        setSelectedDrugs(prev => prev.map(drug =>
+            drug.id === id ? { ...drug, transferQuantity: Math.min(value, drug.availableQuantity) } : drug
+        ));
     };
 
     const handleReturn = (drugId: string) => {
@@ -112,6 +116,12 @@ const TransferDrugPage = () => {
                         loading={isDepartmentsLoading}
                     />
                 </Box>
+            )}
+
+            {!isAdmin && (
+                <Typography variant="h5" mb={2}>
+                    Bo'lim nomi: {departments?.find(dep => dep.id === +departmentId)?.name || "Noma'lum"}
+                </Typography>
             )}
 
             <DrugAutocomplete onSelect={handleAddDrug} />
@@ -154,27 +164,27 @@ const TransferDrugPage = () => {
 
 
 const DrugAutocomplete = ({ onSelect }: { onSelect: (drug: any) => void }) => {
-        const { data: drugs, isLoading } = useDrugList();
+    const { data: drugs, isLoading } = useDrugList();
 
-        return (
-                <>
-                        <Autocomplete
-                                options={drugs ?? []}
-                                getOptionLabel={(option) => option.name}
-                                onChange={(_, value) => value && onSelect(value)}
-                                renderInput={(params) => (
-                                        <TextField
-                                                {...params}
+    return (
+        <>
+            <Autocomplete
+                options={drugs ?? []}
+                getOptionLabel={(option) => option.name}
+                onChange={(_, value) => value && onSelect(value)}
+                renderInput={(params) => (
+                    <TextField
+                        {...params}
 
-                                                label="Dori nomini qidiring"
-                                                variant="outlined"
-                                                fullWidth
-                                        />
-                                )}
-                        />
-                        {isLoading && <Typography mt={1}>Yuklanmoqda...</Typography>}
-                </>
-        );
+                        label="Dori nomini qidiring"
+                        variant="outlined"
+                        fullWidth
+                    />
+                )}
+            />
+            {isLoading && <Typography mt={1}>Yuklanmoqda...</Typography>}
+        </>
+    );
 };
 
 
