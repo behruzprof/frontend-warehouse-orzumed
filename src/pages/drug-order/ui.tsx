@@ -10,7 +10,9 @@ import {
         TextField,
         Pagination,
         useTheme,
-        CssBaseline
+        CssBaseline,
+        Select,
+        MenuItem
 } from "@mui/material";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { useDrugList } from "@/features/drug";
@@ -28,6 +30,7 @@ const DrugOrderPage = () => {
         const [selectedDrugs, setSelectedDrugs] = useState<Record<number, number>>({});
         const [showInputs, setShowInputs] = useState<Record<number, boolean>>({});
         const [page, setPage] = useState(1);
+        const [selectedUnits, setSelectedUnits] = useState<Record<number, string>>({});
         const theme = useTheme();
         const { enqueueSnackbar } = useSnackbar();
 
@@ -78,12 +81,14 @@ const DrugOrderPage = () => {
         const handleSubmitOrder = () => {
                 const orderList = Object.entries(selectedDrugs)
                         .map(([id, amount]) => {
-                                const drug = drugs?.find((d) => d.id === Number(id));
+                                const drugId = Number(id);
+                                const drug = drugs?.find((d) => d.id === drugId);
                                 if (!drug || !amount) return null;
+                                const unit = selectedUnits[drugId] || "штук";
                                 return {
                                         name: drug.name,
                                         amount,
-                                        unit: "шт",
+                                        unit,
                                         category: drug.category,
                                 };
                         })
@@ -185,19 +190,30 @@ const DrugOrderPage = () => {
 
                                                 <Box display="flex" alignItems="center" gap={2}>
                                                         {inputVisible ? (
-                                                                <TextField
-                                                                        type="number"
-                                                                        size="small"
-                                                                        value={selectedAmount || ""}
-                                                                        onChange={(e) =>
-                                                                                handleAmountChange(drug.id, e.target.value, drug.maxStock, drug.quantity)
-                                                                        }
-                                                                        inputProps={{
-                                                                                min: 1,
-                                                                                max: drug.maxStock,
-                                                                        }}
-                                                                        sx={{ width: 100 }}
-                                                                />
+                                                                <>
+                                                                        <TextField
+                                                                                type="number"
+                                                                                size="small"
+                                                                                value={selectedAmount || ""}
+                                                                                onChange={(e) =>
+                                                                                        handleAmountChange(drug.id, e.target.value, drug.maxStock, drug.quantity)
+                                                                                }
+                                                                                inputProps={{
+                                                                                        min: 1,
+                                                                                        max: drug.maxStock,
+                                                                                }}
+                                                                                sx={{ width: 100 }}
+                                                                        />
+                                                                        <Select
+                                                                                size="small"
+                                                                                value={selectedUnits[drug.id] || "штук"}
+                                                                                onChange={(e) => setSelectedUnits(prev => ({ ...prev, [drug.id]: e.target.value }))}
+                                                                                sx={{ width: 100 }}
+                                                                        >
+                                                                                <MenuItem value="штук">штук</MenuItem>
+                                                                                <MenuItem value="упаковка">упаковка</MenuItem>
+                                                                        </Select>
+                                                                </>
                                                         ) : (
                                                                 <Typography variant="body2">
                                                                         {selectedAmount > 0 ? `Buyurtma: ${selectedAmount}` : 'Buyurtma kiritilmagan'}
