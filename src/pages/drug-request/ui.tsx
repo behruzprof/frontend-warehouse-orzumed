@@ -1,9 +1,8 @@
 import {
-    Box, Button, Typography
+    Box, Button, Typography, TextField, Autocomplete
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { APP_ROUTES } from "@/shared/constants/app-route";
-import { Autocomplete, TextField } from "@mui/material";
 import { useState } from "react";
 import { useDrugList } from "@/features/drug";
 import { useCreateDrugRequest } from "@/features/drug-request";
@@ -15,12 +14,12 @@ type SelectedDrug = {
     id: string;
     name: string;
     availableQuantity: number;
-    transferQuantity: number;
+    transferQuantity: number | "";
     quantity: number;
 };
 
 const role = getRoleFromLocalStorage();
-const departmentId = getDepartmentIdFromLocalStorage()
+const departmentId = getDepartmentIdFromLocalStorage();
 const isAdmin = role === Roles.ADMIN;
 
 const TransferDrugPage = () => {
@@ -36,17 +35,19 @@ const TransferDrugPage = () => {
         setSelectedDrugs((prev) => {
             const exists = prev.find(d => d.id === drug.id);
             if (exists) return prev;
-            return [...prev, { ...drug, transferQuantity: 1 }];
+            return [...prev, { ...drug, transferQuantity: "" }];
         });
-            
     };
 
     const handleTransfer = async () => {
-        const invalidDrug = selectedDrugs.find(drug => drug.transferQuantity > drug.availableQuantity);
+        const invalidDrug = selectedDrugs.find(drug =>
+            typeof drug.transferQuantity === "number" &&
+            drug.transferQuantity > drug.availableQuantity
+        );
 
         if (invalidDrug) {
             enqueueSnackbar(
-                `Dori "${invalidDrug.name}" uchun miqdor mavjud emas. Maksimal omborda: ${invalidDrug.quantity}`,
+                `Dori "${invalidDrug.name}" uchun miqdor mavjud emas. Maksimal omborda: ${invalidDrug.availableQuantity}`,
                 { variant: 'error' }
             );
             return;
@@ -61,10 +62,10 @@ const TransferDrugPage = () => {
             const payload = selectedDrugs.map(drug => ({
                 departmentId: +selectedDepartmentId,
                 drugId: +drug.id,
-                quantity: drug.transferQuantity,
+                quantity: Number(drug.transferQuantity) || 0,
             }));
 
-            await createRequest(payload); // ЕДИНЫЙ запрос
+            await createRequest(payload);
 
             enqueueSnackbar("Muvaffaqiyatli o'tkazildi!", { variant: 'success' });
             setSelectedDrugs([]);
@@ -81,9 +82,7 @@ const TransferDrugPage = () => {
                 drug.id === id
                     ? {
                         ...drug,
-                        transferQuantity: isNaN(value) || value < 1
-                            ? 1
-                            :value
+                        transferQuantity: isNaN(value) || value < 1 ? "" : value
                     }
                     : drug
             )
@@ -108,7 +107,7 @@ const TransferDrugPage = () => {
                 </Box>
             </Box>
 
-            {isAdmin && (
+            {isAdmin ? (
                 <Box mb={3}>
                     <Autocomplete
                         options={departments || []}
@@ -121,9 +120,7 @@ const TransferDrugPage = () => {
                         loading={isDepartmentsLoading}
                     />
                 </Box>
-            )}
-
-            {!isAdmin && (
+            ) : (
                 <Typography variant="h5" mb={2}>
                     Bo'lim nomi: {departments?.find(dep => dep.id === +departmentId)?.name || "Noma'lum"}
                 </Typography>
@@ -169,8 +166,6 @@ const TransferDrugPage = () => {
     );
 };
 
-
-
 const DrugAutocomplete = ({ onSelect }: { onSelect: (drug: any) => void }) => {
     const { data: drugs, isLoading } = useDrugList();
 
@@ -181,19 +176,12 @@ const DrugAutocomplete = ({ onSelect }: { onSelect: (drug: any) => void }) => {
                 getOptionLabel={(option) => option.name}
                 onChange={(_, value) => value && onSelect(value)}
                 renderInput={(params) => (
-                    <TextField
-                        {...params}
-
-                        label="Dori nomini qidiring"
-                        variant="outlined"
-                        fullWidth
-                    />
+                    <TextField {...params} label="Dori nomini qidiring" variant="outlined" fullWidth />
                 )}
             />
             {isLoading && <Typography mt={1}>Yuklanmoqda...</Typography>}
         </>
     );
 };
-
 
 export default TransferDrugPage;
