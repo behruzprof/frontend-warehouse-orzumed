@@ -208,7 +208,7 @@ export default function DrugUpdateDeletePage() {
                                                 </Grid>
                                                 {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
-                                                        <TextField label="Sotib olish narxi" name="purchaseAmount" type="number" value={formData.purchaseAmount || ""} fullWidth required />
+                                                        <TextField label="Sotib olish narxi" name="purchaseAmount" type="number"  onChange={handleChange} value={formData.purchaseAmount || ""} fullWidth required />
                                                 </Grid>
                                                 {/* @ts-ignore */}
                                                 <Grid item xs={12} sm={6}>
