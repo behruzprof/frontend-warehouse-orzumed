@@ -1,7 +1,6 @@
 import axios, { type AxiosResponse, type InternalAxiosRequestConfig } from 'axios'
 
-// 'https://backend-warehouse-orzu-production.up.railway.app'
-
+// https://backend-warehouse-orzu-production.up.railway.app
 // http://localhost:5000
 
 const clientApi = axios.create({

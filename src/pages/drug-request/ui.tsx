@@ -38,47 +38,56 @@ const TransferDrugPage = () => {
             if (exists) return prev;
             return [...prev, { ...drug, transferQuantity: 1 }];
         });
+            
     };
 
     const handleTransfer = async () => {
-    const invalidDrug = selectedDrugs.find(drug => drug.transferQuantity > drug.quantity);
+        const invalidDrug = selectedDrugs.find(drug => drug.transferQuantity > drug.availableQuantity);
 
-    if (invalidDrug) {
-        enqueueSnackbar(
-            `Dori "${invalidDrug.name}" uchun miqdor mavjud emas. Maksimal omborda: ${invalidDrug.quantity}`,
-            { variant: 'error' }
-        );
-        return;
-    }
+        if (invalidDrug) {
+            enqueueSnackbar(
+                `Dori "${invalidDrug.name}" uchun miqdor mavjud emas. Maksimal omborda: ${invalidDrug.quantity}`,
+                { variant: 'error' }
+            );
+            return;
+        }
 
-    if (!selectedDepartmentId) {
-        enqueueSnackbar("Iltimos, bo'limni tanlang.", { variant: 'error' });
-        return;
-    }
+        if (!selectedDepartmentId) {
+            enqueueSnackbar("Iltimos, bo'limni tanlang.", { variant: 'error' });
+            return;
+        }
 
-    try {
-        const payload = selectedDrugs.map(drug => ({
-            departmentId: +selectedDepartmentId,
-            drugId: +drug.id,
-            quantity: drug.transferQuantity,
-        }));
+        try {
+            const payload = selectedDrugs.map(drug => ({
+                departmentId: +selectedDepartmentId,
+                drugId: +drug.id,
+                quantity: drug.transferQuantity,
+            }));
 
-        await createRequest(payload); // ЕДИНЫЙ запрос
+            await createRequest(payload); // ЕДИНЫЙ запрос
 
-        enqueueSnackbar("Muvaffaqiyatli o'tkazildi!", { variant: 'success' });
-        setSelectedDrugs([]);
-    } catch (error: any) {
-        console.error("Xatolik yuz berdi:", error);
-        const message = error?.response?.data?.message || "Xatolik yuz berdi!";
-        enqueueSnackbar(message, { variant: 'error' });
-    }
-};
+            enqueueSnackbar("Muvaffaqiyatli o'tkazildi!", { variant: 'success' });
+            setSelectedDrugs([]);
+        } catch (error: any) {
+            console.error("Xatolik yuz berdi:", error);
+            const message = error?.response?.data?.message || "Xatolik yuz berdi!";
+            enqueueSnackbar(message, { variant: 'error' });
+        }
+    };
 
     const updateQuantity = (id: string, value: number) => {
-        if (isNaN(value) || value < 1) value = 1;
-        setSelectedDrugs(prev => prev.map(drug =>
-            drug.id === id ? { ...drug, transferQuantity: Math.min(value, drug.availableQuantity) } : drug
-        ));
+        setSelectedDrugs(prev =>
+            prev.map(drug =>
+                drug.id === id
+                    ? {
+                        ...drug,
+                        transferQuantity: isNaN(value) || value < 1
+                            ? 1
+                            :value
+                    }
+                    : drug
+            )
+        );
     };
 
     const handleReturn = (drugId: string) => {
@@ -133,7 +142,10 @@ const TransferDrugPage = () => {
                             type="number"
                             label="Miqdori"
                             value={drug.transferQuantity}
-                            onChange={(e) => updateQuantity(drug.id, parseInt(e.target.value))}
+                            onChange={(e) => {
+                                const newValue = parseInt(e.target.value);
+                                updateQuantity(drug.id, isNaN(newValue) ? 0 : newValue);
+                            }}
                             inputProps={{ min: 1, max: drug.availableQuantity }}
                             size="small"
                         />
