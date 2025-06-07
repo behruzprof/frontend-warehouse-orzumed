@@ -198,8 +198,7 @@ const TransferDrugPage = () => {
             }
 
             {isScannerOpen && (
-                // @ts-ignore
-                <Box sx={{ display: { md: "none" } }} sx={{ mb: 2 }}>
+                <Box sx={{ display: { md: "none" }, mb: 2 }}>
                     <QRScannerComponent
                         onScan={handleScan}
                         onClose={() => setIsScannerOpen(false)}
