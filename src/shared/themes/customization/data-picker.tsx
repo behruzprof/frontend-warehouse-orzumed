@@ -1,7 +1,8 @@
 import { alpha, type Theme } from '@mui/material/styles';
 import type { PickersProComponents } from '@mui/x-date-pickers-pro/themeAugmentation';
+// @ts-ignore
 import type { PickerComponents } from '@mui/x-date-pickers/themeAugmentation';
-
+// @ts-ignore
 import { pickersDayClasses } from '@mui/x-date-pickers';
 import { menuItemClasses } from '@mui/material/MenuItem';
 import { gray, brand } from '../theme-primitives';
@@ -35,6 +36,7 @@ export const datePickersCustomizations: PickersProComponents<Theme> & PickerComp
         MuiPickersArrowSwitcher: {
                 styleOverrides: {
                         spacer: { width: 16 },
+                        // @ts-ignore
                         button: ({ theme }) => ({
                                 backgroundColor: 'transparent',
                                 color: (theme.vars || theme).palette.grey[500],
@@ -137,6 +139,7 @@ export const datePickersCustomizations: PickersProComponents<Theme> & PickerComp
         },
         MuiPickersDay: {
                 styleOverrides: {
+                        // @ts-ignore
                         root: ({ theme }) => ({
                                 fontSize: theme.typography.body1.fontSize,
                                 color: (theme.vars || theme).palette.grey[600],

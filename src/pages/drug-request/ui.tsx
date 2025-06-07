@@ -9,13 +9,13 @@ import { useCreateDrugRequest } from "@/features/drug-request";
 import { useSnackbar } from "notistack";
 import { getDepartmentIdFromLocalStorage, getRoleFromLocalStorage, Roles } from "@/shared/helpers/get-department-id";
 import { useDepartmentList } from "@/features/department";
+import QRScannerComponent from "@/shared/ui/qr-scanner";
 
 type SelectedDrug = {
     id: string;
     name: string;
     availableQuantity: number;
     transferQuantity: number | "";
-    quantity: number;
 };
 
 const role = getRoleFromLocalStorage();
@@ -30,12 +30,22 @@ const TransferDrugPage = () => {
     const { mutateAsync: createRequest, isPending } = useCreateDrugRequest();
     const localDepartmentId = getDepartmentIdFromLocalStorage();
     const [selectedDepartmentId, setSelectedDepartmentId] = useState<string>(isAdmin ? "" : localDepartmentId);
+    const { data: drugs } = useDrugList();
+    const [isScannerOpen, setIsScannerOpen] = useState(false);
 
     const handleAddDrug = (drug: any) => {
         setSelectedDrugs((prev) => {
             const exists = prev.find(d => d.id === drug.id);
             if (exists) return prev;
-            return [...prev, { ...drug, transferQuantity: "" }];
+            return [
+                ...prev,
+                {
+                    id: drug.id,
+                    name: drug.name,
+                    availableQuantity: drug.quantity,
+                    transferQuantity: ""
+                }
+            ];
         });
     };
 
@@ -80,10 +90,7 @@ const TransferDrugPage = () => {
         setSelectedDrugs(prev =>
             prev.map(drug =>
                 drug.id === id
-                    ? {
-                        ...drug,
-                        transferQuantity: isNaN(value) || value < 1 ? "" : value
-                    }
+                    ? { ...drug, transferQuantity: isNaN(value) || value < 1 ? "" : value }
                     : drug
             )
         );
@@ -93,8 +100,52 @@ const TransferDrugPage = () => {
         setSelectedDrugs(prev => prev.filter(drug => drug.id !== drugId));
     };
 
+    const handleScan = (data: string | null) => {
+        if (!data) return;
+
+        const [idStr, quantityStr] = data.split(";");
+        const id = idStr?.trim();
+        const quantity = parseInt(quantityStr?.trim());
+
+        if (!id || isNaN(quantity)) {
+            enqueueSnackbar("QR kod noto‘g‘ri formatda.", { variant: "error" });
+            return;
+        }
+
+        const drug = drugs?.find(d => d.id.toString() === id);
+        if (!drug) {
+            enqueueSnackbar("Bunday dori topilmadi.", { variant: "error" });
+            return;
+        }
+
+        setSelectedDrugs((prev) => {
+            const exists = prev.find(d => d.id === drug.id.toString());
+            if (exists) {
+                enqueueSnackbar(`"${drug.name}" miqdori yangilandi`, { variant: "info" });
+                return prev.map(d =>
+                    d.id === drug.id.toString()
+                        ? { ...d, transferQuantity: Math.min(quantity, drug.quantity) }
+                        : d
+                );
+            } else {
+                enqueueSnackbar(`"${drug.name}" qo‘shildi`, { variant: "success" });
+                return [
+                    ...prev,
+                    {
+                        id: drug.id.toString(),
+                        name: drug.name,
+                        availableQuantity: drug.quantity,
+                        transferQuantity: Math.min(quantity, drug.quantity)
+                    }
+                ];
+            }
+        });
+
+        setIsScannerOpen(false);
+    };
+
     return (
-        <Box sx={{ maxWidth: 800, width: "100%", mx: "auto", mt: 4, overflowY: "auto" }}>
+        <Box sx={{ maxWidth: 800, width: "100%", mx: "auto", mt: 4 }}>
             <Box display="flex" flexDirection={{ xs: "column", md: "row" }} justifyContent={{ xs: "center", md: "space-between" }} mb={3}>
                 <Typography variant="h5" mb={2}>Dori vositalarini o'tkazish</Typography>
                 <Box display="flex" alignItems="center">
@@ -128,20 +179,50 @@ const TransferDrugPage = () => {
 
             <DrugAutocomplete onSelect={handleAddDrug} />
 
+            <Button
+                variant="outlined"
+                color="primary"
+                onClick={() => setIsScannerOpen(true)}
+                sx={{ my: 2, display: { md: "none" } }}
+                
+            >
+                QR kodni skanerlash
+            </Button>
+
+            {
+                isScannerOpen && (
+                    <Button sx={{ display: { md: "none" } }} variant="contained" color="error" onClick={() => setIsScannerOpen(false)}>
+                        Yopish
+                    </Button>
+                )
+            }
+
+            {isScannerOpen && (
+                // @ts-ignore
+                <Box sx={{ display: { md: "none" } }} sx={{ mb: 2 }}>
+                    <QRScannerComponent
+                        onScan={handleScan}
+                        onClose={() => setIsScannerOpen(false)}
+                    />
+                </Box>
+            )}
+
             <Box mt={3}>
                 {selectedDrugs.map(drug => (
                     <Box
                         key={drug.id}
                         sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, border: "1px solid #ccc", p: 2, borderRadius: 2 }}
                     >
-                        <Typography sx={{ flexGrow: 1 }}>{drug.name}</Typography>
+                        <Typography sx={{ flexGrow: 1 }}>
+                            {drug.name} (Omborda: {drug.availableQuantity})
+                        </Typography>
                         <TextField
                             type="number"
                             label="Miqdori"
-                            value={drug.transferQuantity}
+                            value={drug.transferQuantity ?? ""}
                             onChange={(e) => {
                                 const newValue = parseInt(e.target.value);
-                                updateQuantity(drug.id, isNaN(newValue) ? 0 : newValue);
+                                updateQuantity(drug.id, newValue);
                             }}
                             inputProps={{ min: 1, max: drug.availableQuantity }}
                             size="small"
