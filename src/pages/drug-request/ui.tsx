@@ -214,7 +214,7 @@ const TransferDrugPage = () => {
                         sx={{ display: "flex", alignItems: "center", gap: 2, mb: 2, border: "1px solid #ccc", p: 2, borderRadius: 2 }}
                     >
                         <Typography sx={{ flexGrow: 1 }}>
-                            {drug.name} (Omborda: {drug.availableQuantity})
+                            {drug.name}
                         </Typography>
                         <TextField
                             type="number"
