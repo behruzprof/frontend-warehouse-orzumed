@@ -10,6 +10,7 @@ import { useSnackbar } from "notistack";
 import { getDepartmentIdFromLocalStorage, getRoleFromLocalStorage, Roles } from "@/shared/helpers/get-department-id";
 import { useDepartmentList } from "@/features/department";
 import QRScannerComponent from "@/shared/ui/qr-scanner";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 type SelectedDrug = {
     id: string;
@@ -227,7 +228,7 @@ const TransferDrugPage = () => {
                             size="small"
                         />
                         <Button color="error" variant="contained" onClick={() => handleReturn(drug.id)}>
-                            Olib tashlash
+                            <DeleteIcon/>
                         </Button>
                     </Box>
                 ))}
