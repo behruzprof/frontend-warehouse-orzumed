@@ -61,14 +61,8 @@ const DrugOrderPage = () => {
                 return filteredDrugs.slice(start, start + ITEMS_PER_PAGE);
         }, [filteredDrugs, page]);
 
-        const handleAmountChange = (id: number, value: string, max: number, quantity: number) => {
+        const handleAmountChange = (id: number, value: string) => {
                 const inputAmount = Number(value);
-
-                const maxOrderAmount = max - quantity;
-                if (inputAmount > maxOrderAmount) {
-                        enqueueSnackbar(`Buyurtma miqdori maksimal ruxsat etilgan limitdan oshmasligi kerak (${maxOrderAmount})`, { variant: 'warning' });
-                        return;
-                }
 
                 const amount = Math.max(0, inputAmount); // Защита от отрицательных значений
                 setSelectedDrugs((prev) => ({ ...prev, [id]: amount }));
@@ -196,7 +190,7 @@ const DrugOrderPage = () => {
                                                                                 size="small"
                                                                                 value={selectedAmount || ""}
                                                                                 onChange={(e) =>
-                                                                                        handleAmountChange(drug.id, e.target.value, drug.maxStock, drug.quantity)
+                                                                                        handleAmountChange(drug.id, e.target.value)
                                                                                 }
                                                                                 inputProps={{
                                                                                         min: 1,
