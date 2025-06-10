@@ -63,6 +63,7 @@ const ReportPage: React.FC = () => {
     setYear(value);
      // @ts-ignore
     const days = getDaysArray(value, month);
+    // @ts-ignore
     if (!days.includes(day)) setDay(days.at(-1)!);
   };
 
