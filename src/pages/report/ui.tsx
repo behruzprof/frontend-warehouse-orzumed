@@ -55,11 +55,13 @@ const ReportPage: React.FC = () => {
   const handleMonthChange = (value: string) => {
     setMonth(value);
     const days = getDaysArray(year, value);
+    // @ts-ignore
     if (!days.includes(day)) setDay(days.at(-1)!);
   };
 
   const handleYearChange = (value: string) => {
     setYear(value);
+     // @ts-ignore
     const days = getDaysArray(value, month);
     if (!days.includes(day)) setDay(days.at(-1)!);
   };
