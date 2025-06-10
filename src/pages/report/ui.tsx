@@ -10,7 +10,7 @@ import {
 } from '@mui/material';
 import TelegramIcon from '@mui/icons-material/Telegram';
 import { useReport } from '@/features/drug-arrival/api';
-import { format } from 'date-fns';
+import { format, getDaysInMonth } from 'date-fns';
 
 const months = [
   { value: '01', label: 'Январь' },
@@ -27,8 +27,16 @@ const months = [
   { value: '12', label: 'Декабрь' },
 ];
 
+const getDaysArray = (year: string, month: string) => {
+  const y = parseInt(year, 10);
+  const m = parseInt(month, 10) - 1;
+  const max = getDaysInMonth(new Date(y, m));
+  return Array.from({ length: max }, (_, i) => String(i + 1).padStart(2, '0'));
+};
+
 const ReportPage: React.FC = () => {
   const currentDate = new Date();
+  const [day, setDay] = useState(format(currentDate, 'dd'));
   const [month, setMonth] = useState(format(currentDate, 'MM'));
   const [year, setYear] = useState(format(currentDate, 'yyyy'));
   const [sending, setSending] = useState(false);
@@ -44,10 +52,22 @@ const ReportPage: React.FC = () => {
 
   const { mutate: reportMutate } = useReport();
 
+  const handleMonthChange = (value: string) => {
+    setMonth(value);
+    const days = getDaysArray(year, value);
+    if (!days.includes(day)) setDay(days.at(-1)!);
+  };
+
+  const handleYearChange = (value: string) => {
+    setYear(value);
+    const days = getDaysArray(value, month);
+    if (!days.includes(day)) setDay(days.at(-1)!);
+  };
+
   const handleSendTelegram = () => {
     setSending(true);
     reportMutate(
-      { month, year },
+      { day, month, year },
       {
         onSuccess: () => {
           setSnackbar({
@@ -59,7 +79,6 @@ const ReportPage: React.FC = () => {
         },
         onError: async (error: any) => {
           let message = 'Ошибка отправки отчёта';
-
           try {
             if (error?.response?.data instanceof Blob) {
               const text = await error.response.data.text();
@@ -89,14 +108,30 @@ const ReportPage: React.FC = () => {
     );
   };
 
+  const days = getDaysArray(year, month);
+
   return (
     <Box p={3} maxWidth="600px" mx="auto">
       <Box display="flex" gap={2} mb={3}>
         <TextField
           select
+          label="День"
+          value={day}
+          onChange={(e) => setDay(e.target.value)}
+          fullWidth
+        >
+          {days.map((d) => (
+            <MenuItem key={d} value={d}>
+              {d}
+            </MenuItem>
+          ))}
+        </TextField>
+
+        <TextField
+          select
           label="Месяц"
           value={month}
-          onChange={(e) => setMonth(e.target.value)}
+          onChange={(e) => handleMonthChange(e.target.value)}
           fullWidth
         >
           {months.map((option) => (
@@ -110,7 +145,7 @@ const ReportPage: React.FC = () => {
           type="number"
           label="Год"
           value={year}
-          onChange={(e) => setYear(e.target.value)}
+          onChange={(e) => handleYearChange(e.target.value)}
           fullWidth
           inputProps={{ min: 2000, max: 2100 }}
         />

@@ -12,7 +12,7 @@ import type { UpdateDrugArrivalDto } from '../types/drug-arrival'
 export const useDrugArrivals = () => {
   const { data, error, isLoading } = useQuery({
     queryKey: ['drug-arrivals'],
-    queryFn: getDrugArrivals,
+    queryFn: getDrugArrivals
   })
   return { data, error, isLoading }
 }
@@ -20,7 +20,7 @@ export const useDrugArrivals = () => {
 export const useDrugArrivalById = (id: number) => {
   const { data, error, isLoading } = useQuery({
     queryKey: ['drug-arrivals', id],
-    queryFn: () => getDrugArrivalById(id),
+    queryFn: () => getDrugArrivalById(id)
   })
   return { data, error, isLoading }
 }
@@ -28,27 +28,35 @@ export const useDrugArrivalById = (id: number) => {
 export const useCreateDrugArrival = () => {
   return useMutation({
     mutationKey: ['drug-arrivals'],
-    mutationFn: createDrugArrival,
+    mutationFn: createDrugArrival
   })
 }
 
 export const useUpdateDrugArrival = (id: number) => {
   return useMutation({
     mutationKey: ['drug-arrivals'],
-    mutationFn: (data: UpdateDrugArrivalDto) => updateDrugArrival(id, data),
+    mutationFn: (data: UpdateDrugArrivalDto) => updateDrugArrival(id, data)
   })
 }
 
 export const useDeleteDrugArrival = (id: number) => {
   return useMutation({
     mutationKey: ['drug-arrivals'],
-    mutationFn: () => deleteDrugArrival(id),
+    mutationFn: () => deleteDrugArrival(id)
   })
 }
 
 export const useReport = () => {
   return useMutation({
     mutationKey: ['report'],
-    mutationFn: ({ month, year }: { month: string; year: string }) => getReport(month, year),
+    mutationFn: ({
+      day,
+      month,
+      year
+    }: {
+      day: string
+      month: string
+      year: string
+    }) => getReport(day, month, year)
   })
 }

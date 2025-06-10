@@ -26,8 +26,9 @@ export const deleteDrugArrival = async (id: number) => {
   return response.data
 }
 
-export const getReport = async (month: string, year: string) => {
+export const getReport = async (day: string, month: string, year: string) => {
   const response = await clientApi.post(`/report`, {
+    day,
     month,
     year
   })
