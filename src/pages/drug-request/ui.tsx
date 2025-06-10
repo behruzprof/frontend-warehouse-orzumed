@@ -141,8 +141,6 @@ const TransferDrugPage = () => {
                 ];
             }
         });
-
-        setIsScannerOpen(false);
     };
 
     return (
@@ -226,6 +224,7 @@ const TransferDrugPage = () => {
                             }}
                             inputProps={{ min: 1, max: drug.availableQuantity }}
                             size="small"
+                            sx={{minWidth: "100px"}}
                         />
                         <Button color="error" variant="contained" onClick={() => handleReturn(drug.id)}>
                             <DeleteIcon/>
