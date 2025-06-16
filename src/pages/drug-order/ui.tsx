@@ -4,56 +4,56 @@ import {
         CircularProgress,
         Typography,
         Backdrop,
-        FormControl,
-        InputAdornment,
-        OutlinedInput,
-        TextField,
-        Pagination,
-        useTheme,
         CssBaseline,
-        Select,
-        MenuItem
+        OutlinedInput,
+        InputAdornment,
+        FormControl,
+        Pagination,
 } from "@mui/material";
 import SearchRoundedIcon from "@mui/icons-material/SearchRounded";
 import { useDrugList } from "@/features/drug";
 import { useCreateDrugOrder } from "@/features/drug-order";
 import { useMemo, useState } from "react";
 import debounce from "lodash.debounce";
-import { useSnackbar } from 'notistack';
+import { useSnackbar } from "notistack";
+import QRScannerComponent from "@/shared/ui/qr-scanner/scanner2";
+import ScannerButton from "./scanner-button";
+import DrugList from "./drug-list";
+import SelectedDrugsDialog from "./selected-drug-dialog";
 
 const ITEMS_PER_PAGE = 10;
 
 const DrugOrderPage = () => {
         const { data: drugs, isLoading, error } = useDrugList();
         const { mutate: createDrugOrder } = useCreateDrugOrder();
+        const { enqueueSnackbar } = useSnackbar();
+
         const [searchTerm, setSearchTerm] = useState("");
         const [selectedDrugs, setSelectedDrugs] = useState<Record<number, number>>({});
         const [showInputs, setShowInputs] = useState<Record<number, boolean>>({});
-        const [page, setPage] = useState(1);
         const [selectedUnits, setSelectedUnits] = useState<Record<number, string>>({});
-        const theme = useTheme();
-        const { enqueueSnackbar } = useSnackbar();
+        const [page, setPage] = useState(1);
+        const [isScannerOpen, setIsScannerOpen] = useState(false);
+        const [isDialogOpen, setIsDialogOpen] = useState(false);
 
         const handleSearch = debounce((value: string) => {
                 setSearchTerm(value.toLowerCase().trim());
-                setPage(1); // Reset page on search
+                setPage(1);
         }, 300);
 
         const filteredDrugs = useMemo(() => {
                 if (!drugs) return [];
-                const filtered = drugs.filter((drug) =>
-                        drug.name.toLowerCase().includes(searchTerm)
-                );
-                return filtered.sort((a, b) => {
-                        const aCritical = a.quantity <= a.minStock;
-                        const bCritical = b.quantity <= b.minStock;
-                        const aWarning = a.quantity - a.minStock <= 10;
-                        const bWarning = b.quantity - b.minStock <= 10;
-
-                        if (aCritical !== bCritical) return aCritical ? -1 : 1;
-                        if (aWarning !== bWarning) return aWarning ? -1 : 1;
-                        return a.name.localeCompare(b.name);
-                });
+                return drugs
+                        .filter((drug) => drug.name.toLowerCase().includes(searchTerm))
+                        .sort((a, b) => {
+                                const aCritical = a.quantity <= a.minStock;
+                                const bCritical = b.quantity <= b.minStock;
+                                const aWarning = a.quantity - a.minStock <= 10;
+                                const bWarning = b.quantity - b.minStock <= 10;
+                                if (aCritical !== bCritical) return aCritical ? -1 : 1;
+                                if (aWarning !== bWarning) return aWarning ? -1 : 1;
+                                return a.name.localeCompare(b.name);
+                        });
         }, [drugs, searchTerm]);
 
         const paginatedDrugs = useMemo(() => {
@@ -62,9 +62,7 @@ const DrugOrderPage = () => {
         }, [filteredDrugs, page]);
 
         const handleAmountChange = (id: number, value: string) => {
-                const inputAmount = Number(value);
-
-                const amount = Math.max(0, inputAmount); // Защита от отрицательных значений
+                const amount = Math.max(0, Number(value));
                 setSelectedDrugs((prev) => ({ ...prev, [id]: amount }));
         };
 
@@ -79,32 +77,53 @@ const DrugOrderPage = () => {
                                 const drug = drugs?.find((d) => d.id === drugId);
                                 if (!drug || !amount) return null;
                                 const unit = selectedUnits[drugId] || "штук";
-                                return {
-                                        name: drug.name,
-                                        amount,
-                                        unit,
-                                        category: drug.category,
-                                };
+                                return { name: drug.name, amount, unit, category: drug.category };
                         })
                         .filter(Boolean);
 
                 if (!orderList.length) {
-                        enqueueSnackbar("Buyurtma uchun dori tanlanmadi yoki noto'g'ri miqdor", { variant: 'warning' });
+                        enqueueSnackbar("Buyurtma uchun dori tanlanmadi yoki noto'g'ri miqdor", {
+                                variant: "warning",
+                        });
                         return;
                 }
 
                 // @ts-ignore
                 createDrugOrder(orderList, {
                         onSuccess: () => {
-                                enqueueSnackbar("Buyurtma muvaffaqiyatli yuborildi", { variant: 'success' });
+                                enqueueSnackbar("Buyurtma muvaffaqiyatli yuborildi", { variant: "success" });
                                 setSelectedDrugs({});
                                 setShowInputs({});
                         },
                         onError: () => {
-                                enqueueSnackbar("Buyurtma yuborishda xatolik yuz berdi", { variant: 'error' });
-                        }
+                                enqueueSnackbar("Buyurtma yuborishda xatolik yuz berdi", { variant: "error" });
+                        },
                 });
         };
+
+        const handleScan = (scanned: { id: string; unit: string; amount: number } | null) => {
+                if (!scanned) return;
+
+                const drugId = Number(scanned.id);
+                const drug = drugs?.find((d) => d.id === drugId);
+                if (!drug) {
+                        enqueueSnackbar("Dori topilmadi", { variant: "error" });
+                        return;
+                }
+
+                if (scanned.amount <= 0) {
+                        enqueueSnackbar("Buyurtma miqdori noto'g'ri", { variant: "warning" });
+                        return;
+                }
+
+                setSelectedDrugs((prev) => ({ ...prev, [drug.id]: scanned.amount }));
+                setSelectedUnits((prev) => ({ ...prev, [drug.id]: scanned.unit }));
+                setShowInputs((prev) => ({ ...prev, [drug.id]: true }));
+
+                enqueueSnackbar(`${drug.name} buyurtmaga qo‘shildi`, { variant: "success" });
+                setIsScannerOpen(false); // Закрыть после успешного добавления
+        };
+
 
         if (isLoading) {
                 return (
@@ -125,19 +144,34 @@ const DrugOrderPage = () => {
         }
 
         return (
-                <Box sx={{ maxWidth: "1200px", width: "100%", mx: "auto", mt: 4 }}>
+                <Box sx={{ maxWidth: "1200px", mx: "auto", mt: 4 }}>
                         <CssBaseline />
-                        <Box display="flex" justifyContent="space-between" mb={2}>
+                        <Box
+                                display="flex"
+                                justifyContent="space-between"
+                                alignItems={{ xs: "flex-start", sm: "center" }}
+                                flexDirection={{ xs: "column", sm: "row" }}
+                                gap={2}
+                                mb={2}
+                        >
                                 <Typography variant="h5">Dori buyurtma sahifasi</Typography>
-                                <Button
-                                        variant="contained"
-                                        onClick={handleSubmitOrder}
-                                        sx={{
-                                                display: Object.values(selectedDrugs).every((val) => !val || val <= 0) ? "none" : "block"
-                                        }}
+
+                                <Box
+                                        display="flex"
+                                        flexWrap="wrap"
+                                        gap={1}
+                                        justifyContent={{ xs: "flex-start", sm: "flex-end" }}
                                 >
-                                        Jo'natish
-                                </Button>
+                                        <ScannerButton onClick={() => setIsScannerOpen(true)} />
+                                        <Button variant="outlined" onClick={() => setIsDialogOpen(true)}>
+                                                Tanlangan dorilar
+                                        </Button>
+                                        {Object.values(selectedDrugs).some((v) => v > 0) && (
+                                                <Button variant="contained" onClick={handleSubmitOrder}>
+                                                        Jo'natish
+                                                </Button>
+                                        )}
+                                </Box>
                         </Box>
 
                         <FormControl fullWidth sx={{ mb: 2 }}>
@@ -152,91 +186,39 @@ const DrugOrderPage = () => {
                                 />
                         </FormControl>
 
-                        {paginatedDrugs.map((drug) => {
-                                const isCritical = drug.quantity <= drug.minStock;
-                                const isWarning = drug.quantity - drug.minStock <= 10 && !isCritical;
-                                const selectedAmount = selectedDrugs[drug.id] || 0;
-                                const inputVisible = showInputs[drug.id];
-
-                                let bgColor = theme.palette.background.default;
-                                if (isCritical) bgColor = theme.palette.error.light;
-                                else if (isWarning) bgColor = theme.palette.warning.light;
-
-                                return (
-                                        <Box
-                                                key={drug.id}
-                                                sx={{
-                                                        display: "flex",
-                                                        justifyContent: "space-between",
-                                                        alignItems: "center",
-                                                        p: 2,
-                                                        mb: 1,
-                                                        borderRadius: 2,
-                                                        backgroundColor: bgColor,
-                                                }}
-                                        >
-                                                <Box>
-                                                        <Typography variant="subtitle1">{drug.name}</Typography>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                                Mavjud: {drug.quantity}, Min: {drug.minStock}, Max: {drug.maxStock}
-                                                        </Typography>
-                                                </Box>
-
-                                                <Box display="flex" alignItems="center" gap={2}>
-                                                        {inputVisible ? (
-                                                                <>
-                                                                        <TextField
-                                                                                type="number"
-                                                                                size="small"
-                                                                                value={selectedAmount || ""}
-                                                                                onChange={(e) =>
-                                                                                        handleAmountChange(drug.id, e.target.value)
-                                                                                }
-                                                                                inputProps={{
-                                                                                        min: 1,
-                                                                                        max: drug.maxStock,
-                                                                                }}
-                                                                                sx={{ width: 100 }}
-                                                                        />
-                                                                        <Select
-                                                                                size="small"
-                                                                                value={selectedUnits[drug.id] || "штук"}
-                                                                                onChange={(e) => setSelectedUnits(prev => ({ ...prev, [drug.id]: e.target.value }))}
-                                                                                sx={{ width: 100 }}
-                                                                        >
-                                                                                <MenuItem value="штук">штук</MenuItem>
-                                                                                <MenuItem value="упаковка">упаковка</MenuItem>
-                                                                        </Select>
-                                                                </>
-                                                        ) : (
-                                                                <Typography variant="body2">
-                                                                        {selectedAmount > 0 ? `Buyurtma: ${selectedAmount}` : 'Buyurtma kiritilmagan'}
-                                                                </Typography>
-                                                        )}
-
-                                                        <Button
-                                                                variant={inputVisible ? "contained" : "outlined"}
-                                                                size="small"
-                                                                onClick={() => toggleInput(drug.id)}
-                                                        >
-                                                                {inputVisible ? "OK" : "+"}
-                                                        </Button>
-                                                </Box>
-                                        </Box>
-                                );
-                        })}
+                        <DrugList
+                                drugs={paginatedDrugs}
+                                selectedDrugs={selectedDrugs}
+                                selectedUnits={selectedUnits}
+                                showInputs={showInputs}
+                                onAmountChange={handleAmountChange}
+                                onToggleInput={toggleInput}
+                                onUnitChange={(id: number, value: string) =>
+                                        setSelectedUnits((prev) => ({ ...prev, [id]: value }))
+                                }
+                        />
 
                         <Box mt={3} display="flex" justifyContent="center">
                                 <Pagination
                                         count={Math.ceil(filteredDrugs.length / ITEMS_PER_PAGE)}
                                         page={page}
                                         onChange={(_, value) => setPage(value)}
-                                        color="primary"
                                 />
                         </Box>
+
+                        {isScannerOpen && (
+                                <QRScannerComponent onScan={handleScan} onClose={() => setIsScannerOpen(false)} />
+                        )}
+
+                        <SelectedDrugsDialog
+                                open={isDialogOpen}
+                                onClose={() => setIsDialogOpen(false)}
+                                selectedDrugs={selectedDrugs}
+                                selectedUnits={selectedUnits}
+                                drugs={drugs}
+                        />
                 </Box>
         );
 };
 
-export default DrugOrderPage
-
+export default DrugOrderPage;
