@@ -121,7 +121,6 @@ const DrugOrderPage = () => {
                 setShowInputs((prev) => ({ ...prev, [drug.id]: true }));
 
                 enqueueSnackbar(`${drug.name} buyurtmaga qo‘shildi`, { variant: "success" });
-                setIsScannerOpen(false); // Закрыть после успешного добавления
         };
 
 
