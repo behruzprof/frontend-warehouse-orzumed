@@ -1,3 +1,4 @@
+import { useDrugList } from '@/features/drug';
 import { Scanner, type IDetectedBarcode } from '@yudiel/react-qr-scanner';
 import { useState, useEffect } from 'react';
 
@@ -82,11 +83,13 @@ const drawerStyles = {
 
 
 const QRScannerComponent = ({ onScan, onClose }: QRScannerComponentProps) => {
-        const [result, setResult] = useState<string | null>(null);
-        const [unit, setUnit] = useState<string>('штук');
-        const [amount, setAmount] = useState<number>(1);
         const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
         const [currentDeviceIndex, setCurrentDeviceIndex] = useState(0);
+        const { data: drugs = [] } = useDrugList();
+
+        const [scannedDrugName, setScannedDrugName] = useState<string | null>(null);
+        const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
         const [bgAudio] = useState(() => {
                 const audio = new Audio('/soundtrack.mp3');
                 audio.loop = true;
@@ -118,14 +121,19 @@ const QRScannerComponent = ({ onScan, onClose }: QRScannerComponentProps) => {
 
         const handleScan = (detectedCodes: IDetectedBarcode[]) => {
                 if (detectedCodes.length === 0) return;
-                const text = detectedCodes[0].rawValue;
-                setResult(text);
-                beep.play().catch(() => { });
-        };
 
-        const handleConfirm = () => {
-                if (result) {
-                        onScan({ id: result, unit, amount });
+                const rawValue = detectedCodes[0].rawValue.trim(); // предполагаем, что это ID
+
+                const foundDrug = drugs.find((drug) => drug.id === Number(rawValue));
+
+                if (foundDrug) {
+                        setScannedDrugName(foundDrug.name || 'Неизвестное название');
+                        setErrorMessage(null);
+                        beep.play().catch(() => { });
+                        onScan({ id: String(foundDrug.id), unit: 'штук', amount: 20 });
+                } else {
+                        setScannedDrugName(null);
+                        setErrorMessage(`Лекарство с ID "${rawValue}" не найдено`);
                 }
         };
 
@@ -149,49 +157,14 @@ const QRScannerComponent = ({ onScan, onClose }: QRScannerComponentProps) => {
                                         />
                                 </div>
 
-                                {result && (
-                                        <div style={{ marginTop: 10, display: "flex", flexDirection: "column" }}>
-                                                <label>
-                                                        Ед. измерения:
-                                                        <select
-                                                                style={{
-                                                                        marginLeft: 8,
-                                                                        padding: '6px 10px',
-                                                                        borderRadius: 6,
-                                                                        backgroundColor: '#333',
-                                                                        color: '#fff',
-                                                                        border: '1px solid #555',
-                                                                        outline: 'none',
-                                                                        fontSize: 14,
-                                                                }}
-                                                                value={unit}
-                                                                onChange={(e) => setUnit(e.target.value)}
-                                                        >
-                                                                <option value="штук">штук</option>
-                                                                <option value="упаковка">упаковка</option>
-                                                        </select>
-                                                </label>
-
-                                                <label style={{ marginTop: "10px"}}>
-                                                        Кол-во:
-                                                        <input
-                                                                type="number"
-                                                                min={1}
-                                                                value={amount}
-                                                                onChange={(e) => setAmount(Number(e.target.value))}
-                                                                style={{
-                                                                        width: 70,
-                                                                        marginLeft: 8,
-                                                                        padding: '6px 10px',
-                                                                        borderRadius: 6,
-                                                                        backgroundColor: '#333',
-                                                                        color: '#fff',
-                                                                        border: '1px solid #555',
-                                                                        outline: 'none',
-                                                                        fontSize: 14,
-                                                                }}
-                                                        />
-                                                </label>
+                                {scannedDrugName && (
+                                        <div style={drawerStyles.resultBox}>
+                                                ✅ Найдено: <strong>{scannedDrugName}</strong>
+                                        </div>
+                                )}
+                                {errorMessage && (
+                                        <div style={{ ...drawerStyles.resultBox, backgroundColor: '#501010' }}>
+                                                ❌ {errorMessage}
                                         </div>
                                 )}
 
@@ -201,20 +174,10 @@ const QRScannerComponent = ({ onScan, onClose }: QRScannerComponentProps) => {
                                                         ...drawerStyles.button,
                                                         ...(devices.length <= 1 ? drawerStyles.buttonDisabled : {}),
                                                 }}
-                                                onClick={() =>
-                                                        setCurrentDeviceIndex((i) => (i + 1) % devices.length)
-                                                }
+                                                onClick={() => setCurrentDeviceIndex((i) => (i + 1) % devices.length)}
                                                 disabled={devices.length <= 1}
                                         >
                                                 Камера {currentDeviceIndex + 1} из {devices.length}
-                                        </button>
-
-                                        <button
-                                                style={{ ...drawerStyles.button, backgroundColor: '#28a745' }}
-                                                onClick={handleConfirm}
-                                                disabled={!result}
-                                        >
-                                                Подтвердить
                                         </button>
 
                                         <button

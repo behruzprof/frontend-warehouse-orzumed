@@ -20,12 +20,14 @@ import QRScannerComponent from "@/shared/ui/qr-scanner/scanner2";
 import ScannerButton from "./scanner-button";
 import DrugList from "./drug-list";
 import SelectedDrugsDialog from "./selected-drug-dialog";
+import { useCreateDraftOrder } from "@/features/draft-order";
 
 const ITEMS_PER_PAGE = 10;
 
 const DrugOrderPage = () => {
         const { data: drugs, isLoading, error } = useDrugList();
         const { mutate: createDrugOrder } = useCreateDrugOrder();
+        const { mutate: createDraftOrder } = useCreateDraftOrder();
         const { enqueueSnackbar } = useSnackbar();
 
         const [searchTerm, setSearchTerm] = useState("");
@@ -106,6 +108,7 @@ const DrugOrderPage = () => {
 
                 const drugId = Number(scanned.id);
                 const drug = drugs?.find((d) => d.id === drugId);
+
                 if (!drug) {
                         enqueueSnackbar("Dori topilmadi", { variant: "error" });
                         return;
@@ -116,11 +119,24 @@ const DrugOrderPage = () => {
                         return;
                 }
 
-                setSelectedDrugs((prev) => ({ ...prev, [drug.id]: scanned.amount }));
-                setSelectedUnits((prev) => ({ ...prev, [drug.id]: scanned.unit }));
-                setShowInputs((prev) => ({ ...prev, [drug.id]: true }));
-
-                enqueueSnackbar(`${drug.name} buyurtmaga qo‘shildi`, { variant: "success" });
+                // Создание черновика заказа
+                createDraftOrder(
+                        {
+                                drugId,
+                                quantity: scanned.amount,
+                                unit: scanned.unit,
+                        },
+                        {
+                                onSuccess: () => {
+                                        setSelectedDrugs((prev) => ({ ...prev, [drug.id]: scanned.amount }));
+                                        setSelectedUnits((prev) => ({ ...prev, [drug.id]: scanned.unit }));
+                                        setShowInputs((prev) => ({ ...prev, [drug.id]: true }));
+                                },
+                                onError: () => {
+                                        enqueueSnackbar("Draft buyurtma yaratishda xatolik", { variant: "error" });
+                                },
+                        }
+                );
         };
 
 
