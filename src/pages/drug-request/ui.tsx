@@ -113,9 +113,12 @@ const TransferDrugPage = () => {
             return;
         }
 
+        // ПРИМЕЧАНИЕ: Если хук useDrugList загружает не все лекарства (есть пагинация), 
+        // то нужного лекарства может не оказаться в массиве `drugs`. 
+        // Если это так, здесь нужно делать запрос на бэкенд за конкретным лекарством по ID.
         const drug = drugs?.find(d => d.id.toString() === id);
         if (!drug) {
-            enqueueSnackbar("Bunday dori topilmadi.", { variant: "error" });
+            enqueueSnackbar(`Bunday dori topilmadi (ID: ${id}). Baza yoki ro'yxatni tekshiring.`, { variant: "error" });
             return;
         }
 
@@ -125,7 +128,8 @@ const TransferDrugPage = () => {
                 enqueueSnackbar(`"${drug.name}" miqdori yangilandi`, { variant: "info" });
                 return prev.map(d =>
                     d.id === drug.id.toString()
-                        ? { ...d, transferQuantity: Math.min(quantity, 0) }
+                        // ИСПРАВЛЕНО: берем отсканированное количество, но не больше, чем есть на складе
+                        ? { ...d, transferQuantity: Math.min(quantity, drug.quantity) } 
                         : d
                 );
             } else {
