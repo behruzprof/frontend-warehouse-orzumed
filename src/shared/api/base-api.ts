@@ -10,8 +10,15 @@ const clientApi = axios.create({
 
 clientApi.interceptors.request.use(
   <T>(config: InternalAxiosRequestConfig<T>) => {
-//     const authToken = localStorage.get(TOKEN.AUTH_TOKEN)
-//     config.headers['authorization'] = authToken ? `Bearer ${authToken}` : null
+    // 1. Добавляем API-ключ в заголовок 'x-api-key'
+    config.headers['x-api-key'] = 'telegram_bot_key_456'
+
+    // 2. Если в будущем вернете авторизацию по токену, раскомментируйте это:
+    // const authToken = localStorage.getItem('AUTH_TOKEN') // Убедитесь, что используете getItem
+    // if (authToken) {
+    //   config.headers['Authorization'] = `Bearer ${authToken}`
+    // }
+
     return config
   }
 )
