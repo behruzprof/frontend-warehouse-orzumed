@@ -41,6 +41,15 @@ const Container = styled(Stack)(({ theme }) => ({
         },
 }));
 
+// ✅ ДОБАВЛЕНО: Массив новых категорий
+const CATEGORIES = [
+  "Таблетки",
+  "Растворы",
+  "Капельницы",
+  "Инъекции",
+  "Бошқалар"
+];
+
 export default function DrugUpdateDeletePage() {
         const { id } = useParams<{ id: string }>();
         const { enqueueSnackbar, closeSnackbar } = useSnackbar();
@@ -220,7 +229,8 @@ export default function DrugUpdateDeletePage() {
                                                                         value={formData.category}
                                                                         onChange={handleChange as any}
                                                                 >
-                                                                        {['AX', 'AY', 'AZ', 'BX', 'BY', 'BZ', 'CX', 'CY', 'CZ'].map(c => (
+                                                                        {/* ✅ ИЗМЕНЕНО: Используем массив CATEGORIES */}
+                                                                        {CATEGORIES.map(c => (
                                                                                 <MenuItem key={c} value={c}>{c}</MenuItem>
                                                                         ))}
                                                                 </Select>

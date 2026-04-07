@@ -48,6 +48,15 @@ const Container = styled(Stack)(({ theme }) => ({
   },
 }));
 
+// ✅ ДОБАВЛЕНО: Массив новых категорий
+const CATEGORIES = [
+  "Таблетки",
+  "Растворы",
+  "Капельницы",
+  "Инъекции",
+  "Бошқалар"
+];
+
 export default function DrugCreatePage() {
   const { mutate, isPending } = useCreateDrug();
   const navigate = useNavigate();
@@ -69,7 +78,7 @@ export default function DrugCreatePage() {
     shelf: "",
     section: "",
     row: 0,
-    category: "AX",
+    category: "Таблетки", // ✅ ИЗМЕНЕНО: Значение по умолчанию
     paymentType: "НДС",
     arrivalDate: dayjs().format("YYYY-MM-DD"),
   });
@@ -158,13 +167,12 @@ export default function DrugCreatePage() {
                   value={formData.category}
                   onChange={handleChange as any}
                 >
-                  {["AX", "AY", "AZ", "BX", "BY", "BZ", "CX", "CY", "CZ"].map(
-                    (c) => (
-                      <MenuItem key={c} value={c}>
-                        {c}
-                      </MenuItem>
-                    ),
-                  )}
+                  {/* ✅ ИЗМЕНЕНО: Используем наш новый массив */}
+                  {CATEGORIES.map((c) => (
+                    <MenuItem key={c} value={c}>
+                      {c}
+                    </MenuItem>
+                  ))}
                 </Select>
               </FormControl>
             </Grid>
