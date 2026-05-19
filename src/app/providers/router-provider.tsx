@@ -1,25 +1,33 @@
-import { createBrowserRouter, Navigate, RouterProvider as RouterDomProvider } from 'react-router-dom'
-import { Layout } from '@/pages/layout'
-import { APP_ROUTES } from '@/shared/constants/app-route'
-import { DrugPage } from '@/pages/drug'
-import { DrugCreatePage } from '@/pages/drug-create'
-import { DrugUpdateDeletePage } from '@/pages/drug-update'
-import { DrugArrivalPage } from '@/pages/drug-arrival'
-import { ArrivalCreatePage } from '@/pages/drug-arrival-create'
-import { DrugArrivalUpdateAndDeletePage } from '@/pages/drug-arrival-update'
-import { TransferDrugPage } from '@/pages/drug-request'
-import { DrugRequestPage } from '@/pages/drug-request-list'
-import { DrugRequestUpdateAndDeletePage } from '@/pages/drug-request-update'
-import { SessionsChart } from '@/pages/analytics'
-import { DepartmentPage } from '@/pages/department'
-import { DepartmentCreatePage } from '@/pages/department-create'
-import { DepartmentUpdateDeletePage } from '@/pages/department-update'
-import { getRoleFromLocalStorage, Roles } from '@/shared/helpers/get-department-id'
-import ProtectedRoute from '@/shared/hoc/protected-route'
-import { DrugOrderPage } from '@/pages/drug-order'
-import { ReportPage } from '@/pages/report'
+import {
+  createBrowserRouter,
+  Navigate,
+  RouterProvider as RouterDomProvider,
+} from "react-router-dom";
+import { Layout } from "@/pages/layout";
+import { APP_ROUTES } from "@/shared/constants/app-route";
+import { DrugPage } from "@/pages/drug";
+import { DrugCreatePage } from "@/pages/drug-create";
+import { DrugUpdateDeletePage } from "@/pages/drug-update";
+import { DrugArrivalPage } from "@/pages/drug-arrival";
+import { ArrivalCreatePage } from "@/pages/drug-arrival-create";
+import { DrugArrivalUpdateAndDeletePage } from "@/pages/drug-arrival-update";
+import { TransferDrugPage } from "@/pages/drug-request";
+import { DrugRequestPage } from "@/pages/drug-request-list";
+import { DrugRequestUpdateAndDeletePage } from "@/pages/drug-request-update";
+import { SessionsChart } from "@/pages/analytics";
+import { DepartmentPage } from "@/pages/department";
+import { DepartmentCreatePage } from "@/pages/department-create";
+import { DepartmentUpdateDeletePage } from "@/pages/department-update";
+import {
+  getRoleFromLocalStorage,
+  Roles,
+} from "@/shared/helpers/get-department-id";
+import ProtectedRoute from "@/shared/hoc/protected-route";
+import { DrugOrderPage } from "@/pages/drug-order";
+import { ReportPage } from "@/pages/report";
+import { TemplatePage } from "@/pages/template";
 
-const role = getRoleFromLocalStorage()
+const role = getRoleFromLocalStorage();
 
 const router = createBrowserRouter([
   {
@@ -28,7 +36,15 @@ const router = createBrowserRouter([
     children: [
       {
         index: true,
-        element: <Navigate to={role === Roles.ADMIN ? APP_ROUTES.DRUG : APP_ROUTES.REQUIREMENT_DRUG} />,
+        element: (
+          <Navigate
+            to={
+              role === Roles.ADMIN
+                ? APP_ROUTES.DRUG
+                : APP_ROUTES.REQUIREMENT_DRUG
+            }
+          />
+        ),
       },
       {
         path: APP_ROUTES.DRUG,
@@ -51,6 +67,14 @@ const router = createBrowserRouter([
         element: (
           <ProtectedRoute allowedRole={Roles.ADMIN}>
             <DrugUpdateDeletePage />
+          </ProtectedRoute>
+        ),
+      },
+      {
+        path: `${APP_ROUTES.TEMPLATE}`,
+        element: (
+          <ProtectedRoute allowedRole={Roles.ADMIN}>
+            <TemplatePage />
           </ProtectedRoute>
         ),
       },
@@ -80,15 +104,11 @@ const router = createBrowserRouter([
       },
       {
         path: `${APP_ROUTES.REQUIREMENT_DRUG}`,
-        element: (
-          <TransferDrugPage />
-        ),
+        element: <TransferDrugPage />,
       },
       {
         path: `${APP_ROUTES.REQUIREMENT_DRUG}/list`,
-        element: (
-          <DrugRequestPage />
-        ),
+        element: <DrugRequestPage />,
       },
       {
         path: `${APP_ROUTES.REQUIREMENT_DRUG}/update/:id`,
@@ -146,18 +166,16 @@ const router = createBrowserRouter([
           </ProtectedRoute>
         ),
       },
-    ]
+    ],
   },
   {
     path: APP_ROUTES.NOT_FOUND,
-    element: <Navigate to="/" />
-  }
-])
+    element: <Navigate to="/" />,
+  },
+]);
 
 const RouterProvider = () => {
-  return (
-    <RouterDomProvider router={router} />
-  )
-}
+  return <RouterDomProvider router={router} />;
+};
 
-export default RouterProvider
+export default RouterProvider;

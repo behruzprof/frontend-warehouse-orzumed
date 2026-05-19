@@ -1,5 +1,6 @@
 export enum APP_ROUTES {
         DRUG = '/drug',
+        TEMPLATE = '/template',
         ARRIVALS_DRUG = '/arrivals-drug',
         ORDER_DRUG = '/order-drug',
         REQUIREMENT_DRUG = '/requirement-drug',

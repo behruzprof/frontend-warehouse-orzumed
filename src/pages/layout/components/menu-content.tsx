@@ -12,6 +12,7 @@ import LocalTaxiIcon from '@mui/icons-material/LocalTaxi';
 import EditDocumentIcon from '@mui/icons-material/EditDocument';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
 import WarehouseIcon from '@mui/icons-material/Warehouse';
+import TableChartIcon from '@mui/icons-material/TableChart';
 
 import { APP_ROUTES } from '@/shared/constants/app-route';
 import { getRoleFromLocalStorage, Roles } from '@/shared/helpers/get-department-id';
@@ -20,6 +21,7 @@ const role = getRoleFromLocalStorage()
 
 const mainListItems = [
         { text: 'Dorilar', icon: <HealingIcon />, path: APP_ROUTES.DRUG, isAccess: Roles.ADMIN === role },
+        { text: 'Shablon назначения', icon: <TableChartIcon />, path: APP_ROUTES.TEMPLATE, isAccess: Roles.ADMIN === role },
         { text: 'Kirimlar', icon: <LibraryAddIcon />, path: APP_ROUTES.ARRIVALS_DRUG, isAccess: Roles.ADMIN === role },
         { text: 'Talabnomalar', icon: <EditDocumentIcon />, path: APP_ROUTES.REQUIREMENT_DRUG, isAccess: true },
         { text: 'Buyurtma qilish', icon: <LocalTaxiIcon />, path: APP_ROUTES.ORDER_DRUG, isAccess: Roles.ADMIN === role },

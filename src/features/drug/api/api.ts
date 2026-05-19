@@ -3,7 +3,7 @@ import { clientApi } from '@/shared/api'
 import type { CreateDrugDto, Drug, UpdateDrug } from '../types/drug'
 
 export const getDrugList = async () => {
-  const response = await clientApi.get<Drug[]>('/drugs')
+  const response = await clientApi.get<Drug[]>('/drugs?excludeTemplate=true')
   return response.data
 }
 export const getDrugById = async (id: string) => {
